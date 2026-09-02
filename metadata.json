@@ -1,0 +1,7 @@
+{
+  "name": "Nielsen Golf",
+  "description": "The official career hub for professional golfers Jonathan Nielsen and Tim Nielsen featuring live tournament tracking, scoring, schedules, AI round recaps, and sponsorship opportunities.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
