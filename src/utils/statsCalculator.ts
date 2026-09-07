@@ -1,4 +1,5 @@
 import { Tournament, SeasonStats, Round } from '../types';
+import { formatCalendarDateRange } from '../services/schedule';
 
 export function calculatePlayerSeasonStats(tournaments: Tournament[], playerId?: string, year: number | string = 2026): SeasonStats {
   const yearStr = year.toString();
@@ -109,19 +110,7 @@ export function formatCurrency(amount?: number): string {
   }).format(amount);
 }
 
-export function formatDateRange(startDate: string, endDate: string): string {
+export function formatDateRange(startDate: string, endDate?: string): string {
   if (!startDate) return '';
-  const start = new Date(startDate);
-  const end = new Date(endDate || startDate);
-
-  const startMonth = start.toLocaleString('en-US', { month: 'short' });
-  const endMonth = end.toLocaleString('en-US', { month: 'short' });
-  const startDay = start.getUTCDate();
-  const endDay = end.getUTCDate();
-  const year = start.getUTCFullYear();
-
-  if (startMonth === endMonth) {
-    return `${startMonth} ${startDay}–${endDay}, ${year}`;
-  }
-  return `${startMonth} ${startDay} – ${endMonth} ${endDay}, ${year}`;
+  return formatCalendarDateRange(startDate, endDate, { shortMonth: true });
 }

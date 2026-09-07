@@ -15,6 +15,19 @@ import {
   SponsorInquiry
 } from '../types';
 import { calculatePlayerSeasonStats } from '../utils/statsCalculator';
+import { fetchScheduleFromGoogleSheets } from '../services/schedule';
+import {
+  initialPlayers,
+  initialSponsors,
+  initialSponsorshipPackages,
+  initialDonations,
+  initialInvestmentOpportunities,
+  initialInvestorInquiries,
+  initialSponsorInquiries,
+  initialCareerHighlights,
+  initialCareerTimeline,
+  initialFollowers
+} from '../data/seedData';
 
 interface GolfDataContextType {
   players: Player[];
@@ -43,6 +56,8 @@ interface GolfDataContextType {
   isAnyPlayerLive: boolean;
   isBothPlayersLive: boolean;
   isLoading: boolean;
+  isScheduleError: boolean;
+  scheduleErrorMessage: string | null;
   activeView: string;
   setActiveView: (view: string) => void;
   selectedTournamentSlug: string | null;
@@ -76,113 +91,128 @@ interface GolfDataContextType {
 const GolfDataContext = createContext<GolfDataContextType | undefined>(undefined);
 
 export const GolfDataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [players, setPlayers] = useState<Player[]>([]);
+  const [players, setPlayers] = useState<Player[]>(initialPlayers);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
-  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
-  const [sponsorshipPackages, setSponsorshipPackages] = useState<SponsorshipPackage[]>([]);
-  const [donations, setDonations] = useState<Donation[]>([]);
-  const [investmentOpportunities, setInvestmentOpportunities] = useState<InvestmentOpportunity[]>([]);
-  const [investorInquiries, setInvestorInquiries] = useState<InvestorInquiry[]>([]);
-  const [sponsorInquiries, setSponsorInquiries] = useState<SponsorInquiry[]>([]);
-  const [careerHighlights, setCareerHighlights] = useState<CareerHighlight[]>([]);
-  const [careerTimeline, setCareerTimeline] = useState<CareerTimelineEvent[]>([]);
-  const [followers, setFollowers] = useState<Follower[]>([]);
+  const [sponsors, setSponsors] = useState<Sponsor[]>(initialSponsors);
+  const [sponsorshipPackages, setSponsorshipPackages] = useState<SponsorshipPackage[]>(initialSponsorshipPackages);
+  const [donations, setDonations] = useState<Donation[]>(initialDonations);
+  const [investmentOpportunities, setInvestmentOpportunities] = useState<InvestmentOpportunity[]>(initialInvestmentOpportunities);
+  const [investorInquiries, setInvestorInquiries] = useState<InvestorInquiry[]>(initialInvestorInquiries);
+  const [sponsorInquiries, setSponsorInquiries] = useState<SponsorInquiry[]>(initialSponsorInquiries);
+  const [careerHighlights, setCareerHighlights] = useState<CareerHighlight[]>(initialCareerHighlights);
+  const [careerTimeline, setCareerTimeline] = useState<CareerTimelineEvent[]>(initialCareerTimeline);
+  const [followers, setFollowers] = useState<Follower[]>(initialFollowers);
   const [isLoading, setIsLoading] = useState(true);
+  const [isScheduleError, setIsScheduleError] = useState(false);
+  const [scheduleErrorMessage, setScheduleErrorMessage] = useState<string | null>(null);
   const [activeView, setActiveView] = useState('home');
   const [selectedTournamentSlug, setSelectedTournamentSlug] = useState<string | null>(null);
 
   const refreshData = async () => {
     try {
       setIsLoading(true);
-      const [
-        playersRes,
-        tournsRes,
-        sponsorsRes,
-        packagesRes,
-        followersRes,
-        donationsRes,
-        investmentsRes,
-        investorInqRes,
-        sponsorInqRes
-      ] = await Promise.all([
-        fetch('/api/players'),
-        fetch('/api/tournaments'),
-        fetch('/api/sponsors'),
-        fetch('/api/sponsorship-packages'),
-        fetch('/api/followers'),
-        fetch('/api/donations'),
-        fetch('/api/investments'),
-        fetch('/api/investor-inquiries'),
-        fetch('/api/sponsor-inquiries')
-      ]);
 
-      if (playersRes.ok) {
-        const playersData = await playersRes.json();
-        setPlayers(playersData);
+      // Primary source of truth: Google Sheets schedule
+      const scheduleResult = await fetchScheduleFromGoogleSheets(true);
+      if (scheduleResult.tournaments.length > 0) {
+        setTournaments(scheduleResult.tournaments);
+        setIsScheduleError(false);
+        setScheduleErrorMessage(null);
+      } else if (scheduleResult.isError) {
+        setIsScheduleError(true);
+        setScheduleErrorMessage(scheduleResult.errorMessage || 'Schedule temporarily unavailable.');
       }
 
-      if (tournsRes.ok) {
-        const tournsData = await tournsRes.json();
-        setTournaments(tournsData);
-      }
+      // Secondary client-side / API data for non-tournament models
+      try {
+        const [
+          playersRes,
+          sponsorsRes,
+          packagesRes,
+          followersRes,
+          donationsRes,
+          investmentsRes,
+          investorInqRes,
+          sponsorInqRes
+        ] = await Promise.all([
+          fetch('/api/players').catch(() => null),
+          fetch('/api/sponsors').catch(() => null),
+          fetch('/api/sponsorship-packages').catch(() => null),
+          fetch('/api/followers').catch(() => null),
+          fetch('/api/donations').catch(() => null),
+          fetch('/api/investments').catch(() => null),
+          fetch('/api/investor-inquiries').catch(() => null),
+          fetch('/api/sponsor-inquiries').catch(() => null)
+        ]);
 
-      if (sponsorsRes.ok) {
-        const spData = await sponsorsRes.json();
-        setSponsors(spData);
-      }
+        if (playersRes && playersRes.ok) {
+          const playersData = await playersRes.json();
+          if (Array.isArray(playersData) && playersData.length > 0) {
+            setPlayers(playersData);
+          }
+        }
 
-      if (packagesRes.ok) {
-        const pkgData = await packagesRes.json();
-        setSponsorshipPackages(pkgData);
-      }
+        if (sponsorsRes && sponsorsRes.ok) {
+          const spData = await sponsorsRes.json();
+          if (Array.isArray(spData)) setSponsors(spData);
+        }
 
-      if (followersRes.ok) {
-        const fData = await followersRes.json();
-        setFollowers(fData);
-      }
+        if (packagesRes && packagesRes.ok) {
+          const pkgData = await packagesRes.json();
+          if (Array.isArray(pkgData)) setSponsorshipPackages(pkgData);
+        }
 
-      if (donationsRes.ok) {
-        const dData = await donationsRes.json();
-        setDonations(dData);
-      }
+        if (followersRes && followersRes.ok) {
+          const fData = await followersRes.json();
+          if (Array.isArray(fData)) setFollowers(fData);
+        }
 
-      if (investmentsRes.ok) {
-        const invData = await investmentsRes.json();
-        setInvestmentOpportunities(invData);
-      }
+        if (donationsRes && donationsRes.ok) {
+          const dData = await donationsRes.json();
+          if (Array.isArray(dData)) setDonations(dData);
+        }
 
-      if (investorInqRes.ok) {
-        const inqData = await investorInqRes.json();
-        setInvestorInquiries(inqData);
-      }
+        if (investmentsRes && investmentsRes.ok) {
+          const invData = await investmentsRes.json();
+          if (Array.isArray(invData)) setInvestmentOpportunities(invData);
+        }
 
-      if (sponsorInqRes.ok) {
-        const spInqData = await sponsorInqRes.json();
-        setSponsorInquiries(spInqData);
-      }
+        if (investorInqRes && investorInqRes.ok) {
+          const inqData = await investorInqRes.json();
+          if (Array.isArray(inqData)) setInvestorInquiries(inqData);
+        }
 
-      // Fetch individual highlights and timelines
-      const [jRes, tRes] = await Promise.all([
-        fetch('/api/players/jonathan'),
-        fetch('/api/players/tim')
-      ]);
-      const highlights: CareerHighlight[] = [];
-      const timeline: CareerTimelineEvent[] = [];
-      if (jRes.ok) {
-        const jd = await jRes.json();
-        if (jd.careerHighlights) highlights.push(...jd.careerHighlights);
-        if (jd.careerTimeline) timeline.push(...jd.careerTimeline);
-      }
-      if (tRes.ok) {
-        const td = await tRes.json();
-        if (td.careerHighlights) highlights.push(...td.careerHighlights);
-        if (td.careerTimeline) timeline.push(...td.careerTimeline);
-      }
-      setCareerHighlights(highlights);
-      setCareerTimeline(timeline);
+        if (sponsorInqRes && sponsorInqRes.ok) {
+          const spInqData = await sponsorInqRes.json();
+          if (Array.isArray(spInqData)) setSponsorInquiries(spInqData);
+        }
 
+        // Fetch highlights & timeline if API available
+        const [jRes, tRes] = await Promise.all([
+          fetch('/api/players/jonathan').catch(() => null),
+          fetch('/api/players/tim').catch(() => null)
+        ]);
+        const highlights: CareerHighlight[] = [];
+        const timeline: CareerTimelineEvent[] = [];
+        if (jRes && jRes.ok) {
+          const jd = await jRes.json();
+          if (jd.careerHighlights) highlights.push(...jd.careerHighlights);
+          if (jd.careerTimeline) timeline.push(...jd.careerTimeline);
+        }
+        if (tRes && tRes.ok) {
+          const td = await tRes.json();
+          if (td.careerHighlights) highlights.push(...td.careerHighlights);
+          if (td.careerTimeline) timeline.push(...td.careerTimeline);
+        }
+        if (highlights.length > 0) setCareerHighlights(highlights);
+        if (timeline.length > 0) setCareerTimeline(timeline);
+      } catch {
+        // Safe fallback to seed data on static hosting like GitHub Pages
+      }
     } catch (error) {
-      console.error('Failed to fetch golf data from server:', error);
+      console.error('Failed to fetch golf data:', error);
+      setIsScheduleError(true);
+      setScheduleErrorMessage('Schedule temporarily unavailable.');
     } finally {
       setIsLoading(false);
     }
@@ -522,6 +552,8 @@ export const GolfDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         isAnyPlayerLive,
         isBothPlayersLive,
         isLoading,
+        isScheduleError,
+        scheduleErrorMessage,
         activeView,
         setActiveView,
         selectedTournamentSlug,

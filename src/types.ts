@@ -57,6 +57,17 @@ export interface Tournament {
   course_yardage?: number;
   tournament_recap?: string;
   rounds?: Round[];
+  state_country?: string;
+  tee_time?: string;
+  notes?: string;
+  round_1?: string | number;
+  round_2?: string | number;
+  round_3?: string | number;
+  round_4?: string | number;
+  finish?: string;
+  score_to_par?: string;
+  player_name?: string;
+  season?: number | string;
 }
 
 export interface Player {

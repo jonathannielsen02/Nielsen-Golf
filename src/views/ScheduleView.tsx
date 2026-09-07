@@ -1,14 +1,47 @@
 import React, { useState } from 'react';
 import { useGolfData } from '../context/GolfDataContext';
-import { formatDateRange, formatCurrency } from '../utils/statsCalculator';
 import { Tournament, PlayerFilter } from '../types';
-import { Calendar, MapPin, ExternalLink, Trophy, Filter, ArrowRight, Radio, User } from 'lucide-react';
+import {
+  formatCalendarDateRange,
+  formatVenue,
+  formatLocation,
+  isValidUrl
+} from '../services/schedule';
+import {
+  Calendar,
+  MapPin,
+  ExternalLink,
+  Trophy,
+  Filter,
+  ArrowRight,
+  Radio,
+  Clock,
+  FileText,
+  AlertCircle,
+  RefreshCw
+} from 'lucide-react';
 
 export const ScheduleView: React.FC = () => {
-  const { tournaments, setActiveView, setSelectedTournamentSlug } = useGolfData();
+  const {
+    tournaments,
+    isScheduleError,
+    scheduleErrorMessage,
+    isLoading,
+    refreshData,
+    setActiveView,
+    setSelectedTournamentSlug
+  } = useGolfData();
+
   const [playerFilter, setPlayerFilter] = useState<PlayerFilter>('all');
   const [filterTour, setFilterTour] = useState<string>('All');
   const [filterStatus, setFilterStatus] = useState<string>('All');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refreshData();
+    setIsRefreshing(false);
+  };
 
   const filteredTournaments = tournaments.filter((t) => {
     if (playerFilter === 'jonathan' && !t.player_id.includes('jonathan')) return false;
@@ -21,10 +54,10 @@ export const ScheduleView: React.FC = () => {
   const currentList = filteredTournaments.filter((t) => t.status === 'Current');
   const upcomingList = filteredTournaments
     .filter((t) => t.status === 'Upcoming')
-    .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+    .sort((a, b) => a.start_date.localeCompare(b.start_date));
   const completedList = filteredTournaments
     .filter((t) => t.status === 'Completed')
-    .sort((a, b) => new Date(b.end_date).getTime() - new Date(a.end_date).getTime());
+    .sort((a, b) => b.end_date.localeCompare(a.end_date));
 
   const handleTournamentClick = (t: Tournament) => {
     setSelectedTournamentSlug(t.slug);
@@ -49,14 +82,14 @@ export const ScheduleView: React.FC = () => {
     const isJonathan = playerId.includes('jonathan');
     return {
       name: isJonathan ? 'Jonathan Nielsen' : 'Tim Nielsen',
-      tour: isJonathan ? 'PGA TOUR Americas' : 'Asian Dev Tour (ADT)',
+      tour: isJonathan ? 'PGA TOUR Americas' : 'Asian Development Tour',
       classes: isJonathan
         ? 'bg-emerald-100 text-emerald-950 border border-emerald-300 font-extrabold'
         : 'bg-blue-100 text-blue-950 border border-blue-300 font-extrabold'
     };
   };
 
-  const uniqueTours = ['All', ...Array.from(new Set(tournaments.map(t => t.tour)))];
+  const uniqueTours = ['All', ...Array.from(new Set(tournaments.map((t) => t.tour).filter(Boolean)))];
 
   return (
     <div className="bg-[#FAF9F6] min-h-screen pb-16 text-[#202421]">
@@ -68,74 +101,92 @@ export const ScheduleView: React.FC = () => {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FAF9F6] border border-[#D9D6CC] text-[#244437] text-xs font-bold uppercase tracking-widest mb-2.5">
                 <Calendar className="w-3.5 h-3.5 text-[#B49A6A]" />
-                <span>2026 Tour Calendars</span>
+                <span>Tour Calendars</span>
               </div>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-[#202421] tracking-tight uppercase">
                 Tournament Schedule
               </h1>
               <p className="text-sm sm:text-base text-[#656A65] mt-2 max-w-xl leading-relaxed">
-                Confirmed events, qualifiers, and championship dates for Jonathan Nielsen (PGA TOUR Americas &amp; APGA Tour) and Tim Nielsen (Asian Development Tour - ADT).
+                Live tournament schedules, confirmed qualifiers, and event details for Jonathan Nielsen and Tim Nielsen.
               </p>
             </div>
 
-            {/* Player Filter Tabs */}
-            <div className="flex items-center bg-[#FAF9F6] p-1.5 rounded-xl border border-[#D9D6CC] self-start md:self-auto shadow-xs gap-1">
-              {(['all', 'jonathan', 'tim'] as PlayerFilter[]).map((key) => {
-                const label = key === 'all' ? 'All Golfers' : key === 'jonathan' ? 'Jonathan' : 'Tim';
-                const isActive = playerFilter === key;
-                const isJonathan = key === 'jonathan';
-                const isTim = key === 'tim';
-                return (
-                  <button
-                    key={key}
-                    onClick={() => setPlayerFilter(key)}
-                    className={`px-4 py-2 rounded-lg text-xs font-extrabold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
-                      isActive
-                        ? isJonathan
-                          ? 'bg-[#244437] text-white shadow-sm'
+            {/* Controls: Player Filter Tabs & Refresh Button */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center bg-[#FAF9F6] p-1.5 rounded-xl border border-[#D9D6CC] shadow-xs gap-1">
+                {(['all', 'jonathan', 'tim'] as PlayerFilter[]).map((key) => {
+                  const label = key === 'all' ? 'All Golfers' : key === 'jonathan' ? 'Jonathan' : 'Tim';
+                  const isActive = playerFilter === key;
+                  const isJonathan = key === 'jonathan';
+                  const isTim = key === 'tim';
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setPlayerFilter(key)}
+                      className={`px-4 py-2 rounded-lg text-xs font-extrabold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
+                        isActive
+                          ? isJonathan
+                            ? 'bg-[#244437] text-white shadow-sm'
+                            : isTim
+                            ? 'bg-[#1E3A8A] text-white shadow-sm'
+                            : 'bg-[#202421] text-white shadow-sm'
+                          : isJonathan
+                          ? 'text-[#244437] hover:bg-emerald-50'
                           : isTim
-                          ? 'bg-[#1E3A8A] text-white shadow-sm'
-                          : 'bg-[#202421] text-white shadow-sm'
-                        : isJonathan
-                        ? 'text-[#244437] hover:bg-emerald-50'
-                        : isTim
-                        ? 'text-[#1E3A8A] hover:bg-blue-50'
-                        : 'text-[#656A65] hover:text-[#202421]'
-                    }`}
-                  >
-                    {(isJonathan || isTim) && (
-                      <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : (isJonathan ? 'bg-emerald-500' : 'bg-blue-500')}`}></span>
-                    )}
-                    <span>{label}</span>
-                  </button>
-                );
-              })}
+                          ? 'text-[#1E3A8A] hover:bg-blue-50'
+                          : 'text-[#656A65] hover:text-[#202421]'
+                      }`}
+                    >
+                      {(isJonathan || isTim) && (
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isActive ? 'bg-white' : isJonathan ? 'bg-emerald-500' : 'bg-blue-500'
+                          }`}
+                        />
+                      )}
+                      <span>{label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing || isLoading}
+                title="Refresh schedule from Google Sheets"
+                className="p-2.5 rounded-xl bg-[#FAF9F6] hover:bg-white border border-[#D9D6CC] text-[#656A65] hover:text-[#202421] transition-colors flex items-center gap-1.5 text-xs font-bold"
+              >
+                <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#244437]' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </button>
             </div>
           </div>
 
           {/* Secondary Filter Bar */}
           <div className="flex flex-wrap items-center gap-3 mt-6 pt-6 border-t border-[#D9D6CC]">
             {/* Tour Filter */}
-            <div className="flex flex-wrap items-center gap-1.5 bg-[#FAF9F6] border border-[#D9D6CC] rounded-xl p-1 text-xs">
-              <span className="text-[#656A65] px-2 font-bold uppercase text-[10px]">Tour:</span>
-              {uniqueTours.map((tour) => (
-                <button
-                  key={tour}
-                  onClick={() => setFilterTour(tour)}
-                  className={`px-3 py-1 rounded-lg font-extrabold uppercase tracking-wider text-xs transition-colors ${
-                    filterTour === tour
-                      ? 'bg-[#244437] text-white shadow-2xs'
-                      : 'text-[#656A65] hover:text-[#202421] hover:bg-[#ECEAE4]'
-                  }`}
-                >
-                  {tour}
-                </button>
-              ))}
-            </div>
+            {uniqueTours.length > 2 && (
+              <div className="flex flex-wrap items-center gap-1.5 bg-[#FAF9F6] border border-[#D9D6CC] rounded-xl p-1 text-xs">
+                <span className="text-[#656A65] px-2 font-bold uppercase text-[10px]">Tour:</span>
+                {uniqueTours.map((tour) => (
+                  <button
+                    key={tour}
+                    onClick={() => setFilterTour(tour)}
+                    className={`px-3 py-1 rounded-lg font-extrabold uppercase tracking-wider text-xs transition-colors ${
+                      filterTour === tour
+                        ? 'bg-[#244437] text-white shadow-2xs'
+                        : 'text-[#656A65] hover:text-[#202421] hover:bg-[#ECEAE4]'
+                    }`}
+                  >
+                    {tour}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Status Filter */}
             <div className="flex items-center gap-1.5 bg-[#FAF9F6] border border-[#D9D6CC] rounded-xl p-1 text-xs">
-              <span className="text-[#656A65] px-2 font-bold uppercase text-[10px]">Status:</span>
+              <span className="text-[#656A65] px-2 font-bold uppercase text-[10px]">Category:</span>
               {['All', 'Current', 'Upcoming', 'Completed'].map((status) => (
                 <button
                   key={status}
@@ -157,32 +208,57 @@ export const ScheduleView: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 space-y-12">
         
-        {/* Active / Current Section */}
+        {/* Tasteful Error Message if Endpoint Unavailable */}
+        {isScheduleError && tournaments.length === 0 && (
+          <div className="bg-[#FAF9F6] border border-[#D9D6CC] rounded-2xl p-8 text-center max-w-lg mx-auto shadow-sm">
+            <AlertCircle className="w-8 h-8 text-[#656A65] mx-auto mb-3" />
+            <p className="text-base font-bold text-[#202421]">Schedule temporarily unavailable.</p>
+            <p className="text-xs text-[#656A65] mt-1">
+              Please check back shortly or refresh the page.
+            </p>
+            <button
+              onClick={handleRefresh}
+              className="mt-4 px-4 py-2 bg-[#244437] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#1b342a] transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {/* Active / Current Tournaments Section */}
         {currentList.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-4">
               <span className="px-3.5 py-1.5 rounded-full bg-[#244437] text-white text-xs font-extrabold tracking-widest uppercase flex items-center gap-2 shadow-sm">
                 <Radio className="w-3.5 h-3.5 animate-pulse text-amber-300" />
-                ACTIVE THIS WEEK
+                PLAYING THIS WEEK
               </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {currentList.map((t) => {
                 const golfer = getGolferBadge(t.player_id);
+                const venueText = formatVenue(t.course, t.city, t.state_country);
+                const hasLeaderboard = isValidUrl(t.leaderboard_url);
+                const roundScores = [t.round_1, t.round_2, t.round_3, t.round_4].filter(
+                  (v) => v !== undefined && String(v).trim() !== ''
+                );
+
                 return (
                   <div
                     key={t.id}
-                    className="bg-[#FAF9F6] text-[#202421] border-2 border-[#244437]/50 rounded-2xl p-6 sm:p-7 shadow-sm flex flex-col justify-between"
+                    className="bg-[#FAF9F6] text-[#202421] border-2 border-[#244437]/60 rounded-2xl p-6 sm:p-7 shadow-sm flex flex-col justify-between"
                   >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between gap-2">
                         <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded ${golfer.classes}`}>
                           {golfer.name}
                         </span>
-                        <span className="text-xs font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
-                          {t.tour}
-                        </span>
+                        {t.tour && (
+                          <span className="text-xs font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                            {t.tour}
+                          </span>
+                        )}
                       </div>
                       
                       <h3
@@ -193,19 +269,60 @@ export const ScheduleView: React.FC = () => {
                       </h3>
                       
                       <div className="flex flex-wrap items-center gap-4 text-xs text-[#656A65] pt-1">
-                        <span className="flex items-center gap-1.5 font-medium">
-                          <MapPin className="w-3.5 h-3.5 text-[#244437]" />
-                          {t.course} • {t.city}, {t.state}
-                        </span>
+                        {venueText && (
+                          <span className="flex items-center gap-1.5 font-medium">
+                            <MapPin className="w-3.5 h-3.5 text-[#244437]" />
+                            {venueText}
+                          </span>
+                        )}
                         <span className="flex items-center gap-1.5 font-bold text-[#202421]">
                           <Calendar className="w-3.5 h-3.5 text-[#B49A6A]" />
-                          {formatDateRange(t.start_date, t.end_date)}
+                          {formatCalendarDateRange(t.start_date, t.end_date)}
                         </span>
                       </div>
+
+                      {/* Live Score / Position / Tee Time / Rounds */}
+                      <div className="pt-2 flex flex-wrap items-center gap-2">
+                        {t.tee_time && (
+                          <div className="inline-flex items-center gap-1.5 bg-[#ECEAE4] border border-[#D9D6CC] rounded-lg px-2.5 py-1 text-xs font-semibold text-[#202421]">
+                            <Clock className="w-3 h-3 text-[#656A65]" />
+                            <span>Tee Time: {t.tee_time}</span>
+                          </div>
+                        )}
+
+                        {t.finish && (
+                          <div className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-300 rounded-lg px-2.5 py-1 text-xs font-bold text-amber-900">
+                            <span>Position: {t.finish}</span>
+                          </div>
+                        )}
+
+                        {t.score_to_par && (
+                          <div className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 rounded-lg px-2.5 py-1 text-xs font-bold text-emerald-900 font-mono">
+                            <span>Score: {t.score_to_par}</span>
+                          </div>
+                        )}
+
+                        {roundScores.length > 0 && (
+                          <div className="inline-flex items-center gap-1 bg-[#FAF9F6] border border-[#D9D6CC] rounded-lg px-2 py-1 text-xs font-mono text-[#202421]">
+                            {roundScores.map((score, i) => (
+                              <span key={i} className="px-1 font-bold">
+                                R{i + 1}: {score}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Notes if available */}
+                      {t.notes && (
+                        <p className="text-xs text-[#656A65] italic bg-white/70 border border-[#E2DFD7] rounded-lg p-2.5">
+                          {t.notes}
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3 mt-6 pt-4 border-t border-[#D9D6CC]">
-                      {t.leaderboard_url && (
+                      {hasLeaderboard && (
                         <a
                           href={t.leaderboard_url}
                           target="_blank"
@@ -213,7 +330,7 @@ export const ScheduleView: React.FC = () => {
                           className="px-4 py-2.5 rounded-lg bg-[#244437] hover:bg-[#1b342a] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-all hover:scale-[1.02]"
                         >
                           <Radio className="w-3.5 h-3.5 text-amber-300" />
-                          <span>LIVE LEADERBOARD</span>
+                          <span>FOLLOW LIVE</span>
                           <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                       )}
@@ -246,6 +363,9 @@ export const ScheduleView: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {upcomingList.map((t) => {
                 const golfer = getGolferBadge(t.player_id);
+                const venueText = formatVenue(t.course, t.city, t.state_country);
+                const hasLeaderboard = isValidUrl(t.leaderboard_url);
+
                 return (
                   <div
                     key={t.id}
@@ -266,9 +386,11 @@ export const ScheduleView: React.FC = () => {
                         </span>
                       </div>
 
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#244437] block mb-1">
-                        {t.tour}
-                      </span>
+                      {t.tour && (
+                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#244437] block mb-1">
+                          {t.tour}
+                        </span>
+                      )}
 
                       <h3 className="text-lg font-display font-bold text-[#202421] group-hover:text-[#244437] transition-colors leading-snug">
                         {t.name}
@@ -278,28 +400,49 @@ export const ScheduleView: React.FC = () => {
                         <div className="flex items-start gap-2">
                           <Calendar className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
                           <span className="font-extrabold text-[#202421]">
-                            {formatDateRange(t.start_date, t.end_date)}
+                            {formatCalendarDateRange(t.start_date, t.end_date)}
                           </span>
                         </div>
 
-                        <div className="flex items-start gap-2">
-                          <MapPin className="w-4 h-4 text-[#244437] shrink-0 mt-0.5" />
-                          <span>
-                            {t.course} • {t.city}, {t.state}
-                          </span>
-                        </div>
+                        {venueText && (
+                          <div className="flex items-start gap-2">
+                            <MapPin className="w-4 h-4 text-[#244437] shrink-0 mt-0.5" />
+                            <span>{venueText}</span>
+                          </div>
+                        )}
 
-                        {t.purse && (
-                          <div className="flex items-start gap-2 text-[#202421] font-bold">
-                            <Trophy className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                            <span>Purse: <span className="text-emerald-800 font-mono font-extrabold">{formatCurrency(t.purse)}</span></span>
+                        {t.tee_time && (
+                          <div className="flex items-start gap-2 font-medium text-[#202421]">
+                            <Clock className="w-4 h-4 text-[#656A65] shrink-0 mt-0.5" />
+                            <span>Tee Time: {t.tee_time}</span>
+                          </div>
+                        )}
+
+                        {t.notes && (
+                          <div className="flex items-start gap-2 text-[#656A65] italic text-[11px] pt-1">
+                            <FileText className="w-3.5 h-3.5 text-[#8A8F8A] shrink-0 mt-0.5" />
+                            <span>{t.notes}</span>
                           </div>
                         )}
                       </div>
                     </div>
 
                     <div className="pt-5 mt-5 border-t border-[#E2DFD7] flex items-center justify-between text-xs">
-                      <span className="font-medium text-[#656A65]">{t.country}</span>
+                      {hasLeaderboard ? (
+                        <a
+                          href={t.leaderboard_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-bold text-[#244437] hover:underline flex items-center gap-1"
+                        >
+                          Leaderboard <ExternalLink className="w-3 h-3" />
+                        </a>
+                      ) : (
+                        <span className="font-medium text-[#656A65]">
+                          {formatLocation(t.city, t.state_country)}
+                        </span>
+                      )}
                       <span className="font-bold text-[#244437] group-hover:translate-x-1 transition-transform flex items-center gap-1">
                         Event Details <ArrowRight className="w-3.5 h-3.5" />
                       </span>
@@ -340,14 +483,15 @@ export const ScheduleView: React.FC = () => {
                   <tbody className="divide-y divide-[#ECEAE4] bg-white">
                     {completedList.map((t) => {
                       const golfer = getGolferBadge(t.player_id);
-                      const roundScores = (t.rounds || [])
-                        .filter((r) => r.round_status === 'Completed')
-                        .map((r) => r.score)
+                      const roundScores = [t.round_1, t.round_2, t.round_3, t.round_4]
+                        .filter((v) => v !== undefined && String(v).trim() !== '')
                         .join('-');
 
-                      const finish = t.final_finish || '—';
+                      const finish = t.finish || t.final_finish || '—';
+                      const scoreToPar = t.score_to_par || t.final_score_to_par || '—';
+                      const venueText = formatVenue(t.course, t.city, t.state_country);
                       const isTop3 = finish.includes('1st') || finish.includes('2nd') || finish.includes('3rd') || finish === '1' || finish === '2' || finish === '3';
-                      const isTop10 = isTop3 || ['T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', '4th', '5th', '6th', '7th', '8th', '9th', '10th'].some(n => finish.includes(n));
+                      const isTop10 = isTop3 || ['T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', '4th', '5th', '6th', '7th', '8th', '9th', '10th'].some((n) => finish.includes(n));
 
                       return (
                         <tr
@@ -365,16 +509,20 @@ export const ScheduleView: React.FC = () => {
                               {t.name}
                             </span>
                             <span className="text-xs text-[#656A65] block mt-0.5">
-                              {formatDateRange(t.start_date, t.end_date)}
+                              {formatCalendarDateRange(t.start_date, t.end_date)}
                             </span>
                           </td>
                           <td className="py-4 px-4 hidden md:table-cell">
-                            <span className="font-bold text-[#244437] text-xs block">
-                              {t.tour}
-                            </span>
-                            <span className="text-xs text-[#656A65] block truncate max-w-xs">
-                              {t.course} • {t.city}
-                            </span>
+                            {t.tour && (
+                              <span className="font-bold text-[#244437] text-xs block">
+                                {t.tour}
+                              </span>
+                            )}
+                            {venueText && (
+                              <span className="text-xs text-[#656A65] block truncate max-w-xs">
+                                {venueText}
+                              </span>
+                            )}
                           </td>
                           <td className="py-4 px-4 text-center font-mono text-[#202421] font-semibold">
                             <span className="bg-[#ECEAE4] px-2 py-1 rounded border border-[#D9D6CC]">
@@ -383,7 +531,7 @@ export const ScheduleView: React.FC = () => {
                           </td>
                           <td className="py-4 px-4 text-center font-mono font-black">
                             <span className="text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300 shadow-2xs font-extrabold">
-                              {t.final_score_to_par || 'E'}
+                              {scoreToPar}
                             </span>
                           </td>
                           <td className="py-4 px-4 text-center">
@@ -407,6 +555,27 @@ export const ScheduleView: React.FC = () => {
                 </table>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Empty state when filters return zero events */}
+        {filteredTournaments.length === 0 && !isScheduleError && (
+          <div className="bg-white rounded-2xl p-12 text-center text-[#656A65] border border-[#D9D6CC] max-w-lg mx-auto shadow-sm">
+            <Calendar className="w-10 h-10 text-[#B49A6A] mx-auto mb-3 opacity-60" />
+            <h3 className="text-lg font-bold text-[#202421]">No tournaments found</h3>
+            <p className="text-xs text-[#656A65] mt-1">
+              No tournament events match your current filter selection.
+            </p>
+            <button
+              onClick={() => {
+                setPlayerFilter('all');
+                setFilterTour('All');
+                setFilterStatus('All');
+              }}
+              className="mt-4 px-4 py-2 bg-[#ECEAE4] hover:bg-[#dedad0] text-[#202421] font-bold text-xs uppercase tracking-wider rounded-lg transition-colors"
+            >
+              Reset Filters
+            </button>
           </div>
         )}
 

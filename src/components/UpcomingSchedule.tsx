@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { useGolfData } from '../context/GolfDataContext';
-import { formatDateRange } from '../utils/statsCalculator';
-import { Calendar, MapPin, ArrowRight, ExternalLink, User } from 'lucide-react';
+import {
+  formatCalendarDateRange,
+  formatVenue,
+  formatLocation,
+  isValidUrl
+} from '../services/schedule';
+import { Calendar, MapPin, ArrowRight, ExternalLink, Clock } from 'lucide-react';
 import { Tournament, PlayerFilter } from '../types';
 
 export const UpcomingSchedule: React.FC = () => {
-  const { tournaments, players, setActiveView, setSelectedTournamentSlug } = useGolfData();
+  const { tournaments, setActiveView, setSelectedTournamentSlug } = useGolfData();
   const [playerFilter, setPlayerFilter] = useState<PlayerFilter>('all');
 
   const upcomingTournaments = tournaments
@@ -15,7 +20,7 @@ export const UpcomingSchedule: React.FC = () => {
       if (playerFilter === 'tim') return t.player_id.includes('tim');
       return true;
     })
-    .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+    .sort((a, b) => a.start_date.localeCompare(b.start_date));
 
   const handleTournamentClick = (t: Tournament) => {
     setSelectedTournamentSlug(t.slug);
@@ -26,13 +31,13 @@ export const UpcomingSchedule: React.FC = () => {
   const getStatusBadge = (type: string) => {
     switch (type) {
       case 'Confirmed':
-        return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+        return 'bg-emerald-100 text-emerald-950 border-emerald-300 font-extrabold';
       case 'Planned':
-        return 'bg-blue-100 text-blue-800 border-blue-300';
+        return 'bg-blue-100 text-blue-950 border-blue-300 font-extrabold';
       case 'Qualifier':
-        return 'bg-amber-100 text-amber-800 border-amber-300';
+        return 'bg-amber-100 text-amber-950 border-amber-300 font-extrabold';
       default:
-        return 'bg-slate-100 text-slate-700 border-slate-300';
+        return 'bg-[#ECEAE4] text-[#202421] border-[#D9D6CC] font-bold';
     }
   };
 
@@ -41,8 +46,8 @@ export const UpcomingSchedule: React.FC = () => {
     return {
       name: isJonathan ? 'Jonathan Nielsen' : 'Tim Nielsen',
       classes: isJonathan
-        ? 'bg-emerald-100 text-emerald-900 border-emerald-300 font-extrabold'
-        : 'bg-blue-100 text-blue-900 border-blue-300 font-extrabold'
+        ? 'bg-emerald-100 text-emerald-950 border-emerald-300 font-extrabold'
+        : 'bg-blue-100 text-blue-950 border-blue-300 font-extrabold'
     };
   };
 
@@ -77,8 +82,8 @@ export const UpcomingSchedule: React.FC = () => {
                       : (filterKey === 'jonathan' ? 'text-[#244437] hover:bg-emerald-50' : filterKey === 'tim' ? 'text-[#1E3A8A] hover:bg-blue-50' : 'text-[#656A65] hover:text-[#202421] hover:bg-[#ECEAE4]')
                   }`}
                 >
-                  {filterKey === 'jonathan' && <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-emerald-500'}`}></span>}
-                  {filterKey === 'tim' && <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-blue-500'}`}></span>}
+                  {filterKey === 'jonathan' && <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-emerald-500'}`} />}
+                  {filterKey === 'tim' && <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-blue-500'}`} />}
                   <span>{label}</span>
                 </button>
               );
@@ -87,13 +92,17 @@ export const UpcomingSchedule: React.FC = () => {
         </div>
 
         {upcomingTournaments.length === 0 ? (
-          <div className="bg-white rounded-xl p-8 text-center text-slate-500 border border-slate-200">
+          <div className="bg-white rounded-xl p-8 text-center text-[#656A65] border border-[#D9D6CC]">
             No upcoming tournaments found matching current filter.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {upcomingTournaments.map((t) => {
               const golferInfo = getGolferBadge(t.player_id);
+              const venueText = formatVenue(t.course, t.city, t.state_country);
+              const locationText = formatLocation(t.city, t.state_country);
+              const hasLeaderboard = isValidUrl(t.leaderboard_url);
+
               return (
                 <div
                   key={t.id}
@@ -115,9 +124,11 @@ export const UpcomingSchedule: React.FC = () => {
                       </span>
                     </div>
 
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#244437] block mb-1">
-                      {t.tour}
-                    </span>
+                    {t.tour && (
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#244437] block mb-1">
+                        {t.tour}
+                      </span>
+                    )}
 
                     <h3 className="text-lg font-display font-black text-[#202421] group-hover:text-[#244437] transition-colors leading-snug">
                       {t.name}
@@ -127,23 +138,42 @@ export const UpcomingSchedule: React.FC = () => {
                       <div className="flex items-start gap-2">
                         <Calendar className="w-4 h-4 text-[#B49A6A] shrink-0 mt-0.5" />
                         <span className="font-semibold text-[#202421]">
-                          {formatDateRange(t.start_date, t.end_date)}
+                          {formatCalendarDateRange(t.start_date, t.end_date)}
                         </span>
                       </div>
 
-                      <div className="flex items-start gap-2">
-                        <MapPin className="w-4 h-4 text-[#244437] shrink-0 mt-0.5" />
-                        <span>
-                          {t.course} • {t.city}, {t.state}
-                        </span>
-                      </div>
+                      {venueText && (
+                        <div className="flex items-start gap-2">
+                          <MapPin className="w-4 h-4 text-[#244437] shrink-0 mt-0.5" />
+                          <span>{venueText}</span>
+                        </div>
+                      )}
+
+                      {t.tee_time && (
+                        <div className="flex items-start gap-2 text-[#202421] font-medium">
+                          <Clock className="w-4 h-4 text-[#656A65] shrink-0 mt-0.5" />
+                          <span>Tee Time: {t.tee_time}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div className="pt-5 mt-5 border-t border-[#E2DFD7] flex items-center justify-between text-xs">
-                    <span className="font-medium text-[#8A8F8A]">
-                      {t.country}
-                    </span>
+                    {hasLeaderboard ? (
+                      <a
+                        href={t.leaderboard_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="font-bold text-[#244437] hover:underline flex items-center gap-1"
+                      >
+                        Leaderboard <ExternalLink className="w-3 h-3" />
+                      </a>
+                    ) : (
+                      <span className="font-medium text-[#8A8F8A]">
+                        {locationText}
+                      </span>
+                    )}
                     <span className="font-bold text-[#244437] group-hover:translate-x-1 transition-transform flex items-center gap-1">
                       Event Details <ArrowRight className="w-3.5 h-3.5" />
                     </span>
@@ -162,7 +192,7 @@ export const UpcomingSchedule: React.FC = () => {
             }}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-[#244437] hover:bg-[#1b342a] text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-colors"
           >
-            <span>View Complete 2026 Tour Calendar</span>
+            <span>View Complete Tour Schedule</span>
             <ArrowRight className="w-4 h-4 text-[#B49A6A]" />
           </button>
         </div>
