@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGolfData } from '../context/GolfDataContext';
 import { ShieldCheck, Instagram, Twitter, Linkedin, Heart, TrendingUp, Briefcase } from 'lucide-react';
+import { siteContent } from '../data/siteContent';
 
 export const Footer: React.FC = () => {
   const { setActiveView, setSelectedTournamentSlug, jonathan, tim } = useGolfData();
@@ -32,9 +33,14 @@ export const Footer: React.FC = () => {
               </div>
             </div>
 
-            <p className="text-[#656A65] leading-relaxed text-xs max-w-sm">
-              The official digital platform of Danish professional golfers Jonathan Nielsen and Tim Nielsen. Competing across PGA TOUR Americas, DP World Tour Qualifying, and global developmental circuits.
-            </p>
+            <div className="space-y-2 max-w-sm">
+              <p className="text-[#656A65] leading-relaxed text-xs">
+                The official digital platform of Jonathan Nielsen and Tim Nielsen, following their competition, progress, and journey through professional golf.
+              </p>
+              <p className="text-[#244437] font-bold text-xs tracking-wide">
+                {siteContent.footerStatement}
+              </p>
+            </div>
 
             <div className="flex items-center gap-3 pt-2 text-[#202421]">
               <a

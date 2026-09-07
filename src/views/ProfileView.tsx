@@ -286,6 +286,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ playerSlug }) => {
                   <p>
                     As part of the Nielsen Golf team, {player.first_name} works continuously on physical conditioning, technical shot-shaping, and international competition readiness.
                   </p>
+                  <p className="border-l-2 border-[#B49A6A] pl-4 text-[#4A534E]">
+                    Faith, discipline, and gratitude shape the way {player.first_name} approaches competition, preparation, and the opportunities that come through golf. The pursuit is not only about results, but about using the platform and opportunities of the game with purpose.
+                  </p>
                 </div>
               </div>
             </div>

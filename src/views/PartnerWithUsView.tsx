@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { siteContent } from '../data/siteContent';
 import { useGolfData } from '../context/GolfDataContext';
 import { formatCurrency } from '../utils/statsCalculator';
 import {
@@ -214,9 +215,14 @@ export const PartnerWithUsView: React.FC<PartnerWithUsViewProps> = ({ defaultSec
             Join Jonathan and Tim Nielsen as they pursue professional golf at the highest level.
           </p>
 
-          <p className="text-base sm:text-lg text-[#656A65] max-w-3xl mx-auto leading-relaxed mb-10">
+          <p className="text-base sm:text-lg text-[#656A65] max-w-3xl mx-auto leading-relaxed mb-6">
             Professional golf requires significant annual capital investment in tournament entry fees, weekly travel, lodging, world-class coaching, fitness programming, and specialized equipment. Nielsen Golf offers supporters, private investors, and corporate partners three structured, transparent pathways to participate in our journey to the PGA TOUR.
           </p>
+
+          <div className="max-w-3xl mx-auto mb-10 rounded-xl border border-[#D9D6CC] bg-[#ECEAE4]/70 px-5 py-4 sm:px-6 text-left">
+            <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#B49A6A] mb-1.5">Stewardship</div>
+            <p className="text-sm sm:text-base text-[#404540] leading-relaxed">{siteContent.stewardshipStatement}</p>
+          </div>
 
           {/* Quick jump navigation buttons */}
           <div className="flex flex-wrap items-center justify-center gap-3">
@@ -334,7 +340,7 @@ export const PartnerWithUsView: React.FC<PartnerWithUsViewProps> = ({ defaultSec
               DONATE — FAN &amp; SUPPORTER CONTRIBUTIONS
             </h2>
             <p className="text-base sm:text-lg text-[#656A65] leading-relaxed">
-              Every professional golf season entails substantial out-of-pocket costs for entry fees, caddies, long-haul flights, and accommodation. Supporter contributions provide direct, immediate fuel for competition weeks.
+              Every professional golf season entails substantial out-of-pocket costs for entry fees, caddies, long-haul flights, and accommodation. Supporter contributions provide direct, immediate fuel for competition weeks. We are committed to using that support responsibly toward tournament competition, travel, preparation, and the continued pursuit of excellence.
             </p>
           </div>
 
@@ -776,7 +782,7 @@ export const PartnerWithUsView: React.FC<PartnerWithUsViewProps> = ({ defaultSec
               SPONSOR — CORPORATE BRANDING &amp; PARTNERSHIPS
             </h2>
             <p className="text-base sm:text-lg text-[#656A65] leading-relaxed">
-              Align your company with two of professional golf's most promising rising talents. Our sponsorship packages combine high-frequency brand exposure on national television and social channels with bespoke corporate golf experiences for your key executives and clients.
+              Partner with Nielsen Golf around a shared commitment to excellence, integrity, discipline, relationships, and purpose. Our sponsorship packages combine brand visibility with meaningful corporate golf experiences for executives and clients, while remaining welcoming to partners from a wide range of backgrounds and beliefs.
             </p>
           </div>
 

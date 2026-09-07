@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useGolfData } from '../context/GolfDataContext';
 import { ArrowRight, ExternalLink, Radio, Calendar, MapPin, Trophy, Heart, ChevronRight, Clock, Play, Pause } from 'lucide-react';
 import { Tournament, Player } from '../types';
+import { siteContent } from '../data/siteContent';
 
 export const Hero: React.FC = () => {
   const {
@@ -153,9 +154,14 @@ export const Hero: React.FC = () => {
             </div>
 
             {/* Caption */}
-            <p className="text-base sm:text-lg text-[#4A534E] max-w-xl leading-relaxed font-normal">
-              Two brothers pursuing professional golf at the highest level. Follow live tournament leaderboards, current status, and schedules across PGA TOUR Americas, APGA Tour, and the Asian Development Tour (ADT).
-            </p>
+            <div className="max-w-xl space-y-3">
+              <p className="text-base sm:text-lg text-[#4A534E] leading-relaxed font-normal">
+                Two brothers pursuing professional golf at the highest level. Follow live tournament leaderboards, current status, and schedules across PGA TOUR Americas, APGA Tour, and the Asian Development Tour (ADT).
+              </p>
+              <p className="text-sm sm:text-base text-[#244437] leading-relaxed font-semibold border-l-2 border-[#B49A6A] pl-4">
+                {siteContent.purposeStatement}
+              </p>
+            </div>
 
             {/* Quick Action CTAs */}
             <div className="flex flex-wrap items-center gap-3 pt-2">

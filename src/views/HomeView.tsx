@@ -7,6 +7,7 @@ import { UpcomingSchedule } from '../components/UpcomingSchedule';
 import { RecentResults } from '../components/RecentResults';
 import { SeasonStats } from '../components/SeasonStats';
 import { FollowerSignup } from '../components/FollowerSignup';
+import { VerseOfTheWeek } from '../components/VerseOfTheWeek';
 
 export const HomeView: React.FC = () => {
   return (
@@ -32,7 +33,10 @@ export const HomeView: React.FC = () => {
       {/* Section 7: Season at a Glance Automated Stats */}
       <SeasonStats />
 
-      {/* Section 8: Supporter / Fan Updates & Partner Highlights */}
+      {/* Section 8: Weekly faith reflection — intentionally secondary to golf content */}
+      <VerseOfTheWeek />
+
+      {/* Section 9: Supporter / Fan Updates & Partner Highlights */}
       <FollowerSignup />
     </div>
   );
