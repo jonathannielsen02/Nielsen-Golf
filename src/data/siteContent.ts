@@ -1,6 +1,6 @@
 export const siteContent = {
   purposeStatement:
-    'We pursue excellence in professional golf with faith, discipline, gratitude, and a desire to make the most of every opportunity we have been given.',
+    'Pursuing Christ and the PGA Tour',
   verseOfTheWeek: {
     reference: 'Colossians 3:23',
     text: 'And whatsoever ye do, do it heartily, as to the Lord, and not unto men;',

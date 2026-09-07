@@ -148,18 +148,18 @@ export const Hero: React.FC = () => {
               <h1 className="font-display text-4xl sm:text-6xl lg:text-6xl xl:text-7xl font-black tracking-tight text-[#182C23] leading-none uppercase">
                 NIELSEN GOLF
               </h1>
-              <p className="text-xl sm:text-2xl lg:text-3xl font-serif font-semibold text-[#8C6D38]">
+              <p className="font-display text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-[#8C6D38]">
                 Jonathan Nielsen &amp; Tim Nielsen
+              </p>
+              <p className="font-display text-sm sm:text-base font-bold tracking-[0.08em] text-[#244437]">
+                {siteContent.purposeStatement}
               </p>
             </div>
 
             {/* Caption */}
-            <div className="max-w-xl space-y-3">
+            <div className="max-w-xl">
               <p className="text-base sm:text-lg text-[#4A534E] leading-relaxed font-normal">
                 Two brothers pursuing professional golf at the highest level. Follow live tournament leaderboards, current status, and schedules across PGA TOUR Americas, APGA Tour, and the Asian Development Tour (ADT).
-              </p>
-              <p className="text-sm sm:text-base text-[#244437] leading-relaxed font-semibold border-l-2 border-[#B49A6A] pl-4">
-                {siteContent.purposeStatement}
               </p>
             </div>
 
