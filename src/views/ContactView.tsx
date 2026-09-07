@@ -39,20 +39,21 @@ export const ContactView: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-16">
+    <div className="bg-[#F5F3EE] min-h-screen pb-16">
       
       {/* Header Banner */}
-      <div className="bg-[#0B132B] text-white border-b border-slate-800 py-12 lg:py-16">
+      <div className="bg-[#244437] text-white border-b border-[#1b342a] py-12 lg:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl space-y-3">
-            <span className="text-xs font-black uppercase tracking-widest text-emerald-400 font-mono block">
-              Direct Athlete &amp; Management Communications
-            </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-white tracking-tight uppercase">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white/90 text-xs font-bold uppercase tracking-widest backdrop-blur-sm">
+              <Mail className="w-3.5 h-3.5 text-[#B49A6A]" />
+              <span>Direct Athlete &amp; Management Communications</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-white tracking-tight uppercase">
               Contact Nielsen Golf
             </h1>
-            <p className="text-lg text-slate-300 leading-relaxed font-normal">
-              For corporate partnerships, executive pro-ams, media interviews, and tournament management inquiries for Jonathan &amp; Tim Nielsen.
+            <p className="text-base sm:text-lg text-white/80 leading-relaxed font-normal">
+              For corporate partnerships, brand sponsorship inquiries, media interviews, and tournament coordination for Jonathan &amp; Tim Nielsen.
             </p>
           </div>
         </div>
@@ -65,8 +66,8 @@ export const ContactView: React.FC = () => {
           <div className="lg:col-span-5 space-y-6">
             
             {/* Recipient Selection */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-3">
-              <span className="text-xs font-black uppercase tracking-widest text-slate-500 font-mono block mb-1">
+            <div className="bg-[#FAF9F6] border border-[#D9D6CC] rounded-2xl p-6 shadow-xs space-y-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#656A65] block mb-1">
                 Direct Message To
               </span>
               <div className="grid grid-cols-3 gap-2">
@@ -78,10 +79,10 @@ export const ContactView: React.FC = () => {
                   <button
                     key={item.id}
                     onClick={() => setRecipient(item.id as any)}
-                    className={`py-2 px-3 rounded-lg border text-xs font-black uppercase transition-all font-mono ${
+                    className={`py-2.5 px-3 rounded-lg border text-xs font-bold uppercase tracking-wider transition-all ${
                       recipient === item.id
-                        ? 'bg-slate-950 text-white border-slate-950 shadow ring-2 ring-emerald-500/20'
-                        : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                        ? 'bg-[#244437] text-white border-[#244437] shadow-xs'
+                        : 'bg-white border-[#D9D6CC] text-[#202421] hover:bg-[#ECEAE4]'
                     }`}
                   >
                     {item.label}
@@ -90,8 +91,8 @@ export const ContactView: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-3">
-              <span className="text-xs font-black uppercase tracking-widest text-slate-500 font-mono block mb-1">
+            <div className="bg-[#FAF9F6] border border-[#D9D6CC] rounded-2xl p-6 shadow-xs space-y-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#656A65] block mb-1">
                 Select Inquiry Category
               </span>
 
@@ -103,13 +104,13 @@ export const ContactView: React.FC = () => {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as any)}
-                      className={`w-full flex items-center gap-3 p-3.5 rounded-xl text-left text-xs font-black uppercase tracking-wider transition-all border font-mono ${
+                      className={`w-full flex items-center gap-3 p-3.5 rounded-xl text-left text-xs font-bold uppercase tracking-wider transition-all border ${
                         isSelected
-                          ? 'bg-[#0B132B] text-white border-[#0B132B] shadow-md ring-2 ring-emerald-500/30'
-                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                          ? 'bg-[#244437] text-white border-[#244437] shadow-xs'
+                          : 'bg-white border-[#D9D6CC] text-[#202421] hover:bg-[#ECEAE4]'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 ${isSelected ? 'text-emerald-400' : 'text-slate-500'}`} />
+                      <Icon className={`w-4 h-4 ${isSelected ? 'text-[#B49A6A]' : 'text-[#656A65]'}`} />
                       <span>{tab.label}</span>
                     </button>
                   );
@@ -117,26 +118,50 @@ export const ContactView: React.FC = () => {
               </div>
             </div>
 
-            {/* Quick Info & Representation Card */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4 text-xs">
-              <h3 className="font-display font-black text-slate-950 text-base uppercase">
-                Management &amp; Headquarters
-              </h3>
+            {/* Contact Information Card */}
+            <div className="bg-[#FAF9F6] border border-[#D9D6CC] rounded-2xl p-6 sm:p-7 shadow-xs space-y-6">
+              <div className="border-b border-[#E2DFD7] pb-3.5">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#B49A6A] block mb-1">
+                  Direct Inquiries
+                </span>
+                <h3 className="font-display font-black text-[#202421] text-lg uppercase tracking-tight">
+                  Contact Information
+                </h3>
+              </div>
 
-              <div className="space-y-3 text-slate-600">
-                <div className="flex items-start gap-2.5">
-                  <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="text-slate-900 block font-semibold">Training Bases</strong>
-                    <span>Clemson, SC • Phoenix, AZ • Copenhagen, Denmark</span>
+              <div className="space-y-5 text-xs">
+                {/* Email Section */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 text-[#656A65]">
+                    <Mail className="w-4 h-4 text-[#244437]" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#202421]">
+                      EMAIL
+                    </span>
+                  </div>
+                  <div className="pl-6">
+                    <a
+                      href="mailto:jnielsen.golf@gmail.com"
+                      className="text-sm sm:text-base font-bold text-[#244437] hover:text-[#1b342a] hover:underline transition-colors block break-all font-sans"
+                    >
+                      jnielsen.golf@gmail.com
+                    </a>
+                    <span className="text-[11px] text-[#8A8F8A] block mt-0.5">
+                      Primary Nielsen Golf contact email
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-2.5">
-                  <Mail className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="text-slate-900 block font-semibold">Direct Inquiries</strong>
-                    <span>contact@nielsengolf.com</span>
+                {/* Training Bases Section */}
+                <div className="space-y-1.5 pt-4 border-t border-[#E2DFD7]">
+                  <div className="flex items-center gap-2 text-[#656A65]">
+                    <MapPin className="w-4 h-4 text-[#244437]" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#202421]">
+                      TRAINING BASES
+                    </span>
+                  </div>
+                  <div className="pl-6 space-y-1 text-sm font-semibold text-[#202421]">
+                    <div>Charlotte, NC</div>
+                    <div>Scottsdale, AZ</div>
                   </div>
                 </div>
               </div>
@@ -146,13 +171,13 @@ export const ContactView: React.FC = () => {
 
           {/* Right Column: Contact Form */}
           <div className="lg:col-span-7">
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 lg:p-10 shadow-sm">
+            <div className="bg-[#FAF9F6] border border-[#D9D6CC] rounded-2xl p-6 sm:p-8 lg:p-10 shadow-xs">
               
               <div className="mb-6">
-                <span className="text-xs font-black uppercase tracking-widest text-emerald-700 font-mono block">
+                <span className="text-xs font-bold uppercase tracking-widest text-[#244437] block">
                   Message Management &amp; Athletes
                 </span>
-                <h2 className="text-2xl font-display font-black text-slate-950 mt-0.5 uppercase tracking-tight">
+                <h2 className="text-2xl font-display font-black text-[#202421] mt-0.5 uppercase tracking-tight">
                   {activeTab === 'sponsorship' && 'Sponsorship & Brand Proposal Request'}
                   {activeTab === 'media' && 'Media, Press & Interview Inquiries'}
                   {activeTab === 'outings' && 'Corporate Golf Clinic & Outing Booking'}
@@ -162,11 +187,11 @@ export const ContactView: React.FC = () => {
 
               {status === 'success' ? (
                 <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-8 text-center space-y-3">
-                  <div className="w-12 h-12 rounded-full bg-emerald-600 text-white mx-auto flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-[#244437] text-white mx-auto flex items-center justify-center">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900 font-display">Message Delivered Successfully</h3>
-                  <p className="text-xs text-slate-600 max-w-md mx-auto">
+                  <h3 className="text-lg font-bold text-[#202421] font-display">Message Delivered Successfully</h3>
+                  <p className="text-xs text-[#656A65] max-w-md mx-auto">
                     Thank you for reaching out to Nielsen Golf. Jonathan, Tim, and management will review your communication and respond promptly.
                   </p>
                   <button
@@ -174,7 +199,7 @@ export const ContactView: React.FC = () => {
                       setStatus('idle');
                       setFormData({ name: '', email: '', organization: '', phone: '', subject: '', message: '' });
                     }}
-                    className="mt-4 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-xs font-bold uppercase font-mono"
+                    className="mt-4 px-5 py-2.5 bg-[#244437] hover:bg-[#1b342a] text-white rounded-lg text-xs font-bold uppercase tracking-wider"
                   >
                     Send Another Message
                   </button>
@@ -183,7 +208,7 @@ export const ContactView: React.FC = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-[#656A65] mb-1">
                         Full Name *
                       </label>
                       <input
@@ -192,12 +217,12 @@ export const ContactView: React.FC = () => {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="e.g. Michael Harris"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:bg-white"
+                        className="w-full px-4 py-3 bg-white border border-[#D9D6CC] rounded-lg text-sm text-[#202421] placeholder-[#8A8F8A] focus:outline-none focus:border-[#244437]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-[#656A65] mb-1">
                         Email Address *
                       </label>
                       <input
@@ -206,14 +231,14 @@ export const ContactView: React.FC = () => {
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="michael@company.com"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:bg-white"
+                        className="w-full px-4 py-3 bg-white border border-[#D9D6CC] rounded-lg text-sm text-[#202421] placeholder-[#8A8F8A] focus:outline-none focus:border-[#244437]"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-[#656A65] mb-1">
                         Company / Publication (Optional)
                       </label>
                       <input
@@ -221,12 +246,12 @@ export const ContactView: React.FC = () => {
                         value={formData.organization}
                         onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
                         placeholder="e.g. Golf Digest / Titleist"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:bg-white"
+                        className="w-full px-4 py-3 bg-white border border-[#D9D6CC] rounded-lg text-sm text-[#202421] placeholder-[#8A8F8A] focus:outline-none focus:border-[#244437]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-[#656A65] mb-1">
                         Phone Number (Optional)
                       </label>
                       <input
@@ -234,13 +259,13 @@ export const ContactView: React.FC = () => {
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="+1 (555) 000-0000"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:bg-white"
+                        className="w-full px-4 py-3 bg-white border border-[#D9D6CC] rounded-lg text-sm text-[#202421] placeholder-[#8A8F8A] focus:outline-none focus:border-[#244437]"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#656A65] mb-1">
                       Subject
                     </label>
                     <input
@@ -250,12 +275,12 @@ export const ContactView: React.FC = () => {
                       placeholder={
                         activeTab === 'sponsorship' ? '2026 Season Title Sponsorship' : 'Tournament Media Inquiry'
                       }
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:bg-white"
+                      className="w-full px-4 py-3 bg-white border border-[#D9D6CC] rounded-lg text-sm text-[#202421] placeholder-[#8A8F8A] focus:outline-none focus:border-[#244437]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#656A65] mb-1">
                       Message *
                     </label>
                     <textarea
@@ -264,14 +289,14 @@ export const ContactView: React.FC = () => {
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       placeholder="Please include details about your request, timeline, or objectives..."
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:bg-white"
+                      className="w-full px-4 py-3 bg-white border border-[#D9D6CC] rounded-lg text-sm text-[#202421] placeholder-[#8A8F8A] focus:outline-none focus:border-[#244437]"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={status === 'loading'}
-                    className="w-full py-3.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2 font-mono"
+                    className="w-full py-3.5 rounded-lg bg-[#244437] hover:bg-[#1b342a] text-white font-bold text-xs uppercase tracking-wider shadow-xs transition-all flex items-center justify-center gap-2"
                   >
                     <Send className="w-4 h-4" />
                     <span>{status === 'loading' ? 'Sending Message...' : 'Submit Inquiry'}</span>

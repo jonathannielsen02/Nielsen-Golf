@@ -138,20 +138,43 @@ export const Footer: React.FC = () => {
           {/* Col 5: Athlete Management & Admin */}
           <div>
             <h4 className="font-display font-bold text-[#202421] text-xs uppercase tracking-widest mb-4">
-              Administration
+              Contact &amp; Bases
             </h4>
             <div className="space-y-3 text-xs">
-              <p className="text-[#656A65]">
-                Tours: PGA TOUR Americas • ECCO Tour
-              </p>
-              <p className="text-[#656A65]">
-                Representing Denmark
-              </p>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#656A65] block">
+                  Contact Email
+                </span>
+                <a
+                  href="mailto:jnielsen.golf@gmail.com"
+                  className="font-bold text-[#244437] hover:underline block mt-0.5"
+                >
+                  jnielsen.golf@gmail.com
+                </a>
+              </div>
               
-              <div className="pt-2">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#656A65] block">
+                  Training Bases
+                </span>
+                <span className="text-[#202421] font-semibold block mt-0.5">
+                  Charlotte, NC • Scottsdale, AZ
+                </span>
+              </div>
+
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#656A65] block">
+                  Tours
+                </span>
+                <span className="text-[#656A65] block mt-0.5">
+                  PGA TOUR Americas • ADT
+                </span>
+              </div>
+              
+              <div className="pt-1">
                 <button
                   onClick={() => handleNav('admin')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#FAF9F6] border border-[#D9D6CC] text-[#202421] hover:text-[#244437] hover:border-[#244437] transition-colors font-medium text-xs shadow-sm"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#FAF9F6] border border-[#D9D6CC] text-[#202421] hover:text-[#244437] hover:border-[#244437] transition-colors font-medium text-xs shadow-xs"
                 >
                   <ShieldCheck className="w-3.5 h-3.5 text-[#244437]" />
                   <span>Admin Hub</span>
