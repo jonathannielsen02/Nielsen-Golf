@@ -49,6 +49,8 @@ interface GolfDataContextType {
   timSeasonStats: SeasonStats;
   jonathanCurrentTournament: Tournament | null;
   timCurrentTournament: Tournament | null;
+  jonathanPreparingTournament: Tournament | null;
+  timPreparingTournament: Tournament | null;
   jonathanNextTournament: Tournament | null;
   timNextTournament: Tournament | null;
   jonathanLatestRoundInfo: { round: any; tournament: Tournament } | null;
@@ -232,18 +234,22 @@ export const GolfDataProvider: React.FC<{ children: ReactNode }> = ({ children }
   const jonathanCurrentTournament = jonathanTournaments.find(t => t.status === 'Current') || null;
   const timCurrentTournament = timTournaments.find(t => t.status === 'Current') || null;
 
+  // Preparing Tournaments (tournament week, 3 calendar days before start date)
+  const jonathanPreparingTournament = jonathanTournaments.find(t => t.status === 'Preparing') || null;
+  const timPreparingTournament = timTournaments.find(t => t.status === 'Preparing') || null;
+
   const isAnyPlayerLive = Boolean(jonathanCurrentTournament || timCurrentTournament);
   const isBothPlayersLive = Boolean(jonathanCurrentTournament && timCurrentTournament);
 
   // Upcoming Tournaments
   const jonathanUpcoming = jonathanTournaments
     .filter(t => t.status === 'Upcoming')
-    .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+    .sort((a, b) => a.start_date.localeCompare(b.start_date));
   const jonathanNextTournament = jonathanUpcoming[0] || null;
 
   const timUpcoming = timTournaments
     .filter(t => t.status === 'Upcoming')
-    .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+    .sort((a, b) => a.start_date.localeCompare(b.start_date));
   const timNextTournament = timUpcoming[0] || null;
 
   // Latest Completed Round for Jonathan
@@ -545,6 +551,8 @@ export const GolfDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         timSeasonStats,
         jonathanCurrentTournament,
         timCurrentTournament,
+        jonathanPreparingTournament,
+        timPreparingTournament,
         jonathanNextTournament,
         timNextTournament,
         jonathanLatestRoundInfo,

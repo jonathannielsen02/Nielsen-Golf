@@ -15,6 +15,8 @@ export const CurrentTournamentCard: React.FC = () => {
     tim,
     jonathanCurrentTournament,
     timCurrentTournament,
+    jonathanPreparingTournament,
+    timPreparingTournament,
     jonathanNextTournament,
     timNextTournament,
     setActiveView,
@@ -62,6 +64,7 @@ export const CurrentTournamentCard: React.FC = () => {
             <PlayerTournamentWidget
               player={jonathan}
               currentTournament={jonathanCurrentTournament}
+              preparingTournament={jonathanPreparingTournament}
               nextTournament={jonathanNextTournament}
               onCardClick={handleTournamentClick}
               onViewProfile={() => {
@@ -80,6 +83,7 @@ export const CurrentTournamentCard: React.FC = () => {
             <PlayerTournamentWidget
               player={tim}
               currentTournament={timCurrentTournament}
+              preparingTournament={timPreparingTournament}
               nextTournament={timNextTournament}
               onCardClick={handleTournamentClick}
               onViewProfile={() => {
@@ -103,6 +107,7 @@ export const CurrentTournamentCard: React.FC = () => {
 interface PlayerTournamentWidgetProps {
   player: Player;
   currentTournament: Tournament | null;
+  preparingTournament: Tournament | null;
   nextTournament: Tournament | null;
   onCardClick: (t: Tournament) => void;
   onViewProfile: () => void;
@@ -112,13 +117,16 @@ interface PlayerTournamentWidgetProps {
 const PlayerTournamentWidget: React.FC<PlayerTournamentWidgetProps> = ({
   player,
   currentTournament,
+  preparingTournament,
   nextTournament,
   onCardClick,
   onViewProfile,
   onViewSchedule
 }) => {
+  // Priority: 1. CURRENT tournament, 2. PREPARING tournament, 3. nearest UPCOMING tournament
   const isLive = Boolean(currentTournament);
-  const tournament = currentTournament || nextTournament;
+  const isPreparing = !currentTournament && Boolean(preparingTournament);
+  const tournament = currentTournament || preparingTournament || nextTournament;
 
   if (!tournament) {
     return (
@@ -219,6 +227,11 @@ const PlayerTournamentWidget: React.FC<PlayerTournamentWidgetProps> = ({
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                 <span>PLAYING THIS WEEK</span>
               </span>
+            ) : isPreparing ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ECEAE4] text-[#244437] text-[11px] font-bold uppercase tracking-wider border border-[#B49A6A]/50 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-[#244437]" />
+                <span>TOURNAMENT WEEK</span>
+              </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#244437] text-[11px] font-bold uppercase tracking-wider border border-[#D9D6CC] shadow-2xs">
                 <Calendar className="w-3.5 h-3.5 text-[#B49A6A]" />
@@ -268,7 +281,7 @@ const PlayerTournamentWidget: React.FC<PlayerTournamentWidgetProps> = ({
           </div>
         </div>
 
-        {/* Live Scores or Upcoming Info */}
+        {/* Live Scores, Preparing State, or Upcoming Info */}
         {isLive ? (
           <div className="bg-white border border-[#E2DFD7] rounded-xl p-4 space-y-4 shadow-sm">
             
@@ -341,6 +354,40 @@ const PlayerTournamentWidget: React.FC<PlayerTournamentWidgetProps> = ({
             )}
 
           </div>
+        ) : isPreparing ? (
+          <div className="bg-white border border-[#E2DFD7] rounded-xl p-4.5 space-y-3.5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#FAF9F6] border border-[#D9D6CC] text-xs text-[#244437] font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#B49A6A]" />
+                <span>Travel &amp; Preparation</span>
+              </div>
+              <span className="text-[11px] font-semibold text-[#656A65]">Tournament Week Routine</span>
+            </div>
+
+            <p className="text-xs text-[#656A65] leading-relaxed">
+              Athlete is actively preparing for tournament play: travel, practice rounds, and final preparation. Competition play begins {formatCalendarDateRange(tournament.start_date, tournament.start_date)}.
+            </p>
+
+            {tournament.notes && (
+              <p className="text-xs text-[#656A65] italic bg-[#FAF9F6] border border-[#E2DFD7] rounded-lg p-2.5">
+                {tournament.notes}
+              </p>
+            )}
+
+            {hasLeaderboard && (
+              <div className="pt-1 border-t border-[#ECEAE4]">
+                <a
+                  href={tournament.leaderboard_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#244437] hover:underline"
+                >
+                  <span>Official Event Page</span>
+                  <ExternalLink className="w-3 h-3 text-[#656A65]" />
+                </a>
+              </div>
+            )}
+          </div>
         ) : (
           <div className="bg-white border border-[#E2DFD7] rounded-xl p-5 text-center space-y-1.5 shadow-sm">
             <span className="text-[11px] font-bold text-[#656A65] uppercase tracking-wider block">
@@ -380,6 +427,23 @@ const PlayerTournamentWidget: React.FC<PlayerTournamentWidgetProps> = ({
               className="flex-1 px-4 py-3 rounded-lg bg-white hover:bg-[#ECEAE4] text-[#202421] font-bold text-xs uppercase tracking-wider border border-[#D9D6CC] flex items-center justify-center gap-1.5 transition-colors"
             >
               <span>Tournament Details</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </>
+        ) : isPreparing ? (
+          <>
+            <button
+              onClick={() => onCardClick(tournament)}
+              className="flex-1 px-4 py-3 rounded-lg bg-[#244437] hover:bg-[#1b342a] text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <span>TOURNAMENT DETAILS</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={onViewProfile}
+              className="flex-1 px-4 py-3 rounded-lg bg-white hover:bg-[#ECEAE4] text-[#202421] font-bold text-xs uppercase tracking-wider border border-[#D9D6CC] flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <span>VIEW PROFILE</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </>

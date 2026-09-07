@@ -1,4 +1,4 @@
-export type TournamentStatus = 'Current' | 'Upcoming' | 'Completed' | 'Cancelled';
+export type TournamentStatus = 'Current' | 'Preparing' | 'Upcoming' | 'Completed' | 'Cancelled';
 export type TournamentType = 'Confirmed' | 'Planned' | 'Qualifier' | 'Pending';
 export type RoundStatus = 'Completed' | 'In Progress' | 'Scheduled';
 export type SponsorTier = 'Premier Partner' | 'Official Partner' | 'Supporting Partner';

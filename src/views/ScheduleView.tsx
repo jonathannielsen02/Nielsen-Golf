@@ -52,6 +52,9 @@ export const ScheduleView: React.FC = () => {
   });
 
   const currentList = filteredTournaments.filter((t) => t.status === 'Current');
+  const preparingList = filteredTournaments
+    .filter((t) => t.status === 'Preparing')
+    .sort((a, b) => a.start_date.localeCompare(b.start_date));
   const upcomingList = filteredTournaments
     .filter((t) => t.status === 'Upcoming')
     .sort((a, b) => a.start_date.localeCompare(b.start_date));
@@ -187,7 +190,7 @@ export const ScheduleView: React.FC = () => {
             {/* Status Filter */}
             <div className="flex items-center gap-1.5 bg-[#FAF9F6] border border-[#D9D6CC] rounded-xl p-1 text-xs">
               <span className="text-[#656A65] px-2 font-bold uppercase text-[10px]">Category:</span>
-              {['All', 'Current', 'Upcoming', 'Completed'].map((status) => (
+              {['All', 'Current', 'Preparing', 'Upcoming', 'Completed'].map((status) => (
                 <button
                   key={status}
                   onClick={() => setFilterStatus(status)}
@@ -340,6 +343,121 @@ export const ScheduleView: React.FC = () => {
                       >
                         Tournament Details
                       </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Preparing / Tournament Week Tournaments Section */}
+        {preparingList.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="px-3.5 py-1.5 rounded-full bg-[#ECEAE4] text-[#244437] text-xs font-extrabold tracking-widest uppercase flex items-center gap-2 border border-[#D9D6CC] shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-[#244437]" />
+                TOURNAMENT WEEK • PREPARING ({preparingList.length})
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {preparingList.map((t) => {
+                const golfer = getGolferBadge(t.player_id);
+                const venueText = formatVenue(t.course, t.city, t.state_country);
+                const hasLeaderboard = isValidUrl(t.leaderboard_url);
+
+                return (
+                  <div
+                    key={t.id}
+                    className="bg-[#FAF9F6] text-[#202421] border-2 border-[#244437]/40 hover:border-[#244437] rounded-2xl p-6 sm:p-7 shadow-sm transition-all flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded ${golfer.classes}`}>
+                          {golfer.name}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#ECEAE4] border border-[#B49A6A]/40 text-[#244437] text-[10px] font-bold uppercase tracking-wider">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#B49A6A]" />
+                            <span>TOURNAMENT WEEK</span>
+                          </span>
+                          {t.tour && (
+                            <span className="text-xs font-black uppercase tracking-wider text-[#244437] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                              {t.tour}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <h3
+                        onClick={() => handleTournamentClick(t)}
+                        className="text-2xl font-display font-black text-[#202421] hover:text-[#244437] cursor-pointer transition-colors"
+                      >
+                        {t.name}
+                      </h3>
+
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-[#656A65] pt-1">
+                        {venueText && (
+                          <span className="flex items-center gap-1.5 font-medium">
+                            <MapPin className="w-3.5 h-3.5 text-[#244437]" />
+                            {venueText}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1.5 font-bold text-[#202421]">
+                          <Calendar className="w-3.5 h-3.5 text-[#B49A6A]" />
+                          {formatCalendarDateRange(t.start_date, t.end_date)}
+                        </span>
+                      </div>
+
+                      {/* Tournament Week Status Box */}
+                      <div className="bg-white border border-[#E2DFD7] rounded-xl p-3.5 space-y-2 mt-2">
+                        <div className="flex items-center justify-between">
+                          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#244437]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#244437]" />
+                            <span>Travel &amp; Preparation Routine</span>
+                          </span>
+                          <span className="text-[11px] text-[#656A65] font-medium">
+                            Starts {formatCalendarDateRange(t.start_date, t.start_date)}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#656A65] leading-relaxed">
+                          Athlete is preparing on-site: travel day, practice rounds, course strategy, and final preparation. Competition play begins on {formatCalendarDateRange(t.start_date, t.start_date)}.
+                        </p>
+                        {t.tee_time && (
+                          <div className="inline-flex items-center gap-1.5 bg-[#ECEAE4] border border-[#D9D6CC] rounded-lg px-2.5 py-1 text-xs font-semibold text-[#202421]">
+                            <Clock className="w-3 h-3 text-[#656A65]" />
+                            <span>Scheduled Tee Time: {t.tee_time}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {t.notes && (
+                        <p className="text-xs text-[#656A65] italic bg-[#ECEAE4]/50 border border-[#D9D6CC] rounded-lg p-2.5">
+                          {t.notes}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3 mt-6 pt-4 border-t border-[#D9D6CC]">
+                      <button
+                        onClick={() => handleTournamentClick(t)}
+                        className="px-4 py-2.5 rounded-lg bg-[#244437] hover:bg-[#1b342a] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-all hover:scale-[1.02]"
+                      >
+                        <span>Tournament Details</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                      {hasLeaderboard && (
+                        <a
+                          href={t.leaderboard_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-2.5 rounded-lg bg-white hover:bg-emerald-50 text-[#244437] text-xs font-bold uppercase tracking-wider border border-[#244437]/30 flex items-center gap-1.5 transition-colors"
+                        >
+                          <span>Event Info</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
                     </div>
                   </div>
                 );

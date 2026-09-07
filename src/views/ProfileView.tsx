@@ -54,9 +54,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ playerSlug }) => {
   const playerTimelineEvents = careerTimeline.filter(t => t.player_id === player.id);
   const stats = calculatePlayerSeasonStats(tournaments, player.slug, selectedYear);
 
+  const preparingTournaments = playerTournaments.filter(t => t.status === 'Preparing');
   const upcomingTournaments = playerTournaments.filter(t => t.status === 'Upcoming');
   const completedTournaments = playerTournaments.filter(t => t.status === 'Completed');
   const currentTournament = playerTournaments.find(t => t.status === 'Current');
+  const preparingTournament = playerTournaments.find(t => t.status === 'Preparing');
+  const activeEvent = currentTournament || preparingTournament;
 
   const handleTournamentClick = (t: Tournament) => {
     setSelectedTournamentSlug(t.slug);
@@ -104,18 +107,27 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ playerSlug }) => {
             </div>
           </div>
 
-          {currentTournament && (
+          {currentTournament ? (
             <a
               href={currentTournament.leaderboard_url}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-[#244437] hover:bg-[#1b342a] text-white text-xs font-bold uppercase tracking-wider shadow-sm transition-colors"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
               <span>LIVE: {currentTournament.name}</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
-          )}
+          ) : preparingTournament ? (
+            <button
+              onClick={() => handleTournamentClick(preparingTournament)}
+              className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-[#FAF9F6] hover:bg-white text-[#244437] border border-[#B49A6A]/50 text-xs font-bold uppercase tracking-wider shadow-2xs transition-colors"
+            >
+              <span className="w-2 h-2 rounded-full bg-[#244437]"></span>
+              <span>TOURNAMENT WEEK: {preparingTournament.name}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          ) : null}
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -234,7 +246,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ playerSlug }) => {
         <div className="flex items-center gap-2 border-b border-[#D9D6CC] pb-2 overflow-x-auto">
           {[
             { id: 'overview', label: 'OVERVIEW & STATS' },
-            { id: 'schedule', label: `${player.first_name.toUpperCase()}'S SCHEDULE (${upcomingTournaments.length})` },
+            { id: 'schedule', label: `${player.first_name.toUpperCase()}'S SCHEDULE (${(currentTournament ? 1 : 0) + preparingTournaments.length + upcomingTournaments.length})` },
             { id: 'results', label: `RESULTS (${completedTournaments.length})` },
             { id: 'timeline', label: 'CAREER TIMELINE' },
           ].map((tab) => (
@@ -380,12 +392,77 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ playerSlug }) => {
         {/* Tab 2: Player Schedule */}
         {profileTab === 'schedule' && (
           <div className="space-y-6">
+            {/* Active / Preparing Tournament Card */}
+            {activeEvent && (
+              <div className="bg-[#FAF9F6] border-2 border-[#244437]/40 rounded-2xl p-6 sm:p-7 shadow-sm">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#ECEAE4] text-[#244437] border border-[#B49A6A]/50">
+                    <span className={`w-2 h-2 rounded-full ${currentTournament ? 'bg-amber-400 animate-pulse' : 'bg-[#244437]'}`} />
+                    {currentTournament ? 'PLAYING THIS WEEK' : 'TOURNAMENT WEEK • PREPARING'}
+                  </span>
+                  {activeEvent.tour && (
+                    <span className="text-xs font-black uppercase tracking-wider text-[#244437] bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
+                      {activeEvent.tour}
+                    </span>
+                  )}
+                </div>
+
+                <h3
+                  onClick={() => handleTournamentClick(activeEvent)}
+                  className="text-2xl font-display font-black text-[#202421] hover:text-[#244437] cursor-pointer transition-colors"
+                >
+                  {activeEvent.name}
+                </h3>
+
+                <p className="text-xs text-[#656A65] mt-1 font-medium">
+                  {activeEvent.course} • {activeEvent.city}, {activeEvent.state_country || activeEvent.state}
+                </p>
+                <p className="text-xs font-bold text-[#202421] mt-2 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-[#B49A6A]" />
+                  <span>Competition Dates: {formatDateRange(activeEvent.start_date, activeEvent.end_date)}</span>
+                </p>
+
+                {preparingTournament && !currentTournament && (
+                  <div className="bg-white border border-[#E2DFD7] rounded-xl p-3.5 mt-3 space-y-1.5">
+                    <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#244437]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#B49A6A]" />
+                      <span>Travel &amp; Preparation Routine</span>
+                    </div>
+                    <p className="text-xs text-[#656A65] leading-relaxed">
+                      {player.first_name} is on-site for tournament week. Practice rounds, course scouting, and preparations are underway before round 1.
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-3 pt-4 mt-4 border-t border-[#D9D6CC]">
+                  <button
+                    onClick={() => handleTournamentClick(activeEvent)}
+                    className="px-4 py-2 rounded-lg bg-[#244437] hover:bg-[#1b342a] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-colors"
+                  >
+                    <span>Tournament Details</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                  {Boolean(activeEvent.leaderboard_url && activeEvent.leaderboard_url.startsWith('http')) && (
+                    <a
+                      href={activeEvent.leaderboard_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 rounded-lg bg-white hover:bg-emerald-50 text-[#244437] border border-[#244437]/30 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors"
+                    >
+                      <span>Leaderboard / Event Page</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="bg-white border border-[#D9D6CC] rounded-2xl p-6 shadow-sm">
               <h3 className="text-xl font-display font-black text-[#202421] uppercase tracking-tight mb-4">
                 {player.display_name}'s Upcoming Tour Schedule
               </h3>
               {upcomingTournaments.length === 0 ? (
-                <p className="text-sm text-[#656A65]">No upcoming events currently scheduled for {player.first_name}.</p>
+                <p className="text-sm text-[#656A65]">No additional upcoming events currently scheduled for {player.first_name}.</p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {upcomingTournaments.map(t => (

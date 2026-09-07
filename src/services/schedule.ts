@@ -217,12 +217,34 @@ export function isValidUrl(url?: string | null): boolean {
 }
 
 /**
- * Determines tournament category (Current, Upcoming, Completed, Cancelled)
+ * Subtracts calendar days from a YYYY-MM-DD date string without timezone drift.
+ * Pure calendar-date math using UTC date components.
+ */
+export function subtractCalendarDays(calDateStr: string, days: number): string {
+  const match = (calDateStr || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return '';
+  const y = parseInt(match[1], 10);
+  const m = parseInt(match[2], 10) - 1; // 0-indexed for Date UTC
+  const d = parseInt(match[3], 10);
+
+  const utcDate = new Date(Date.UTC(y, m, d));
+  utcDate.setUTCDate(utcDate.getUTCDate() - days);
+
+  const resY = utcDate.getUTCFullYear();
+  const resM = String(utcDate.getUTCMonth() + 1).padStart(2, '0');
+  const resD = String(utcDate.getUTCDate()).padStart(2, '0');
+  return `${resY}-${resM}-${resD}`;
+}
+
+/**
+ * Determines tournament category (Current, Preparing, Upcoming, Completed, Cancelled)
  * based on calendar dates and status from the sheet:
- * - CURRENT: Today is on or after start_date AND on or before end_date
- * - UPCOMING: start_date is after today
- * - COMPLETED: end_date is before today (or status is 'Completed')
- * - Cancelled events never appear as Current
+ * - CANCELLED: Cancelled events must never appear as PREPARING or CURRENT
+ * - COMPLETED: Today is after end_date (or raw status is 'Completed')
+ * - CURRENT: Today is on or after start_date AND today is on or before end_date
+ * - PREPARING: Today is at least start_date minus 3 days AND today is before start_date
+ *   (reflects travel day, practice round, and final prep before competition starts)
+ * - UPCOMING: Today is earlier than start_date minus 3 days
  */
 export function determineTournamentStatus(
   startDateCal: string,
@@ -232,6 +254,7 @@ export function determineTournamentStatus(
 ): TournamentStatus {
   const statusLower = (rawStatus || '').trim().toLowerCase();
 
+  // Cancelled events must never appear as PREPARING or CURRENT
   if (statusLower === 'cancelled') {
     return 'Cancelled';
   }
@@ -242,20 +265,29 @@ export function determineTournamentStatus(
 
   const effectiveEnd = endDateCal || startDateCal;
 
+  // COMPLETED: today is after end_date
   if (effectiveEnd && effectiveEnd < todayCal) {
     return 'Completed';
   }
 
-  if (startDateCal && startDateCal > todayCal) {
-    return 'Upcoming';
-  }
-
+  // CURRENT: today is on or after start_date AND today is on or before end_date
   if (startDateCal && effectiveEnd && todayCal >= startDateCal && todayCal <= effectiveEnd) {
     return 'Current';
   }
 
   if (startDateCal && startDateCal === todayCal) {
     return 'Current';
+  }
+
+  // PREPARING vs UPCOMING:
+  // PREPARING: today is at least start_date minus 3 calendar days AND today is before start_date
+  if (startDateCal && todayCal < startDateCal) {
+    const prepStartCal = subtractCalendarDays(startDateCal, 3);
+    if (prepStartCal && todayCal >= prepStartCal) {
+      return 'Preparing';
+    }
+    // UPCOMING: today is earlier than start_date minus 3 days
+    return 'Upcoming';
   }
 
   return 'Upcoming';
@@ -400,6 +432,7 @@ const CACHE_TTL_MS = 60 * 1000; // 60 seconds
 export interface ScheduleFetchResult {
   tournaments: Tournament[];
   currentTournaments: Tournament[];
+  preparingTournaments: Tournament[];
   upcomingTournaments: Tournament[];
   completedTournaments: Tournament[];
   isLoading: boolean;
@@ -411,12 +444,17 @@ export interface ScheduleFetchResult {
 /**
  * Sorts tournaments according to user instructions:
  * 1. Current tournaments first
- * 2. Upcoming tournaments by nearest start date first
- * 3. Completed tournaments by most recent end date first
+ * 2. Preparing tournaments (3 calendar days before start date)
+ * 3. Upcoming tournaments by nearest start date first
+ * 4. Completed tournaments by most recent end date first
  */
 export function sortTournaments(tournaments: Tournament[]): Tournament[] {
   const current = tournaments
     .filter((t) => t.status === 'Current')
+    .sort((a, b) => a.start_date.localeCompare(b.start_date));
+
+  const preparing = tournaments
+    .filter((t) => t.status === 'Preparing')
     .sort((a, b) => a.start_date.localeCompare(b.start_date));
 
   const upcoming = tournaments
@@ -431,7 +469,7 @@ export function sortTournaments(tournaments: Tournament[]): Tournament[] {
     .filter((t) => t.status === 'Cancelled')
     .sort((a, b) => a.start_date.localeCompare(b.start_date));
 
-  return [...current, ...upcoming, ...completed, ...cancelled];
+  return [...current, ...preparing, ...upcoming, ...completed, ...cancelled];
 }
 
 /**
@@ -449,6 +487,7 @@ export async function fetchScheduleFromGoogleSheets(
     return {
       tournaments: sorted,
       currentTournaments: sorted.filter((t) => t.status === 'Current'),
+      preparingTournaments: sorted.filter((t) => t.status === 'Preparing'),
       upcomingTournaments: sorted.filter((t) => t.status === 'Upcoming'),
       completedTournaments: sorted.filter((t) => t.status === 'Completed'),
       isLoading: false,
@@ -500,6 +539,7 @@ export async function fetchScheduleFromGoogleSheets(
       return {
         tournaments: sorted,
         currentTournaments: sorted.filter((t) => t.status === 'Current'),
+        preparingTournaments: sorted.filter((t) => t.status === 'Preparing'),
         upcomingTournaments: sorted.filter((t) => t.status === 'Upcoming'),
         completedTournaments: sorted.filter((t) => t.status === 'Completed'),
         isLoading: false,
@@ -515,6 +555,7 @@ export async function fetchScheduleFromGoogleSheets(
       return {
         tournaments: fallbackList,
         currentTournaments: fallbackList.filter((t) => t.status === 'Current'),
+        preparingTournaments: fallbackList.filter((t) => t.status === 'Preparing'),
         upcomingTournaments: fallbackList.filter((t) => t.status === 'Upcoming'),
         completedTournaments: fallbackList.filter((t) => t.status === 'Completed'),
         isLoading: false,
