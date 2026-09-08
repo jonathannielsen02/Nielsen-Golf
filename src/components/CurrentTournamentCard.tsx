@@ -4,7 +4,8 @@ import {
   formatCalendarDateRange,
   formatVenue,
   formatLocation,
-  isValidUrl
+  isValidUrl,
+  getLeaderboardUrl
 } from '../services/schedule';
 import { ExternalLink, Calendar, MapPin, ArrowRight, Radio, Clock, User } from 'lucide-react';
 import { Tournament, Player } from '../types';
@@ -170,7 +171,10 @@ const PlayerTournamentWidget: React.FC<PlayerTournamentWidgetProps> = ({
 
   const venueText = formatVenue(tournament.course, tournament.city, tournament.state_country);
   const locationText = formatLocation(tournament.city, tournament.state_country);
-  const hasLeaderboard = isValidUrl(tournament.leaderboard_url);
+  const leaderboardUrl = isLive
+    ? getLeaderboardUrl(tournament)
+    : (isValidUrl(tournament.leaderboard_url) ? tournament.leaderboard_url : '');
+  const hasLeaderboard = isValidUrl(leaderboardUrl);
 
   // Parse round scores from Google Sheets fields or rounds array
   const rawRoundScores = [
@@ -377,7 +381,7 @@ const PlayerTournamentWidget: React.FC<PlayerTournamentWidgetProps> = ({
             {hasLeaderboard && (
               <div className="pt-1 border-t border-[#ECEAE4]">
                 <a
-                  href={tournament.leaderboard_url}
+                  href={leaderboardUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-[#244437] hover:underline"
@@ -412,7 +416,7 @@ const PlayerTournamentWidget: React.FC<PlayerTournamentWidgetProps> = ({
           <>
             {hasLeaderboard && (
               <a
-                href={tournament.leaderboard_url}
+                href={leaderboardUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 px-4 py-3 rounded-lg bg-[#244437] hover:bg-[#1b342a] text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 transition-colors"

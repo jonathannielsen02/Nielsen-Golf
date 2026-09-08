@@ -68,7 +68,13 @@ export interface Tournament {
   score_to_par?: string;
   player_name?: string;
   season?: number | string;
+  event_id?: string;
+  event_type?: string;
+  total_strokes?: number;
+  finish_numeric?: number;
+  made_cut?: boolean;
 }
+
 
 export interface Player {
   id: string;

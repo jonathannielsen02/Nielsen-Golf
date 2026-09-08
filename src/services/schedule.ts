@@ -11,6 +11,10 @@ export const GOOGLE_SHEETS_SCHEDULE_ENDPOINT =
   'https://script.google.com/macros/s/AKfycbyI2_3enCFIDQRAev_hBfPIPOT-uQA557K2YB7mepE-vhm8XSDni9IeDDgUtST2UvQ/exec';
 
 export interface GoogleSheetTournamentRow {
+  event_id?: string;
+  player_slug?: string;
+  season?: string | number;
+  event_type?: string;
   player?: string;
   start_date?: string;
   end_date?: string;
@@ -27,7 +31,11 @@ export interface GoogleSheetTournamentRow {
   round_3?: string | number;
   round_4?: string | number;
   finish?: string;
-  score_to_par?: string;
+  score_to_par?: string | number;
+  total_strokes?: string | number;
+  finish_numeric?: string | number;
+  made_cut?: string | boolean;
+  earnings?: string | number;
   notes?: string;
 }
 
@@ -36,6 +44,24 @@ export interface PlayerInfo {
   playerId: string;
   displayName: string;
 }
+
+export interface GoogleSheetSiteContentRow {
+  key?: string;
+  reference?: string;
+  text?: string;
+  translation?: string;
+  [key: string]: unknown;
+}
+
+export interface GoogleSheetsWorkbookResponse {
+  Schedule?: GoogleSheetTournamentRow[];
+  Results?: GoogleSheetTournamentRow[];
+  'Site Content'?: GoogleSheetSiteContentRow[];
+  [sheetName: string]: unknown;
+}
+
+export const PGA_TOUR_AMERICAS_LEADERBOARD_URL =
+  'https://www.pgatour.com/americas/leaderboard';
 
 /**
  * Normalizes player name from Google Sheets
@@ -217,6 +243,23 @@ export function isValidUrl(url?: string | null): boolean {
 }
 
 /**
+ * Returns the best live-scoring URL for a tournament.
+ * A sheet-provided URL always wins. PGA TOUR Americas events fall back to
+ * the tour leaderboard so routine schedule updates do not require a URL.
+ */
+export function getLeaderboardUrl(tournament?: Pick<Tournament, 'tour' | 'leaderboard_url'> | null): string {
+  if (!tournament) return '';
+  if (isValidUrl(tournament.leaderboard_url)) return tournament.leaderboard_url.trim();
+
+  const normalizedTour = (tournament.tour || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  if (normalizedTour.includes('pga tour americas')) {
+    return PGA_TOUR_AMERICAS_LEADERBOARD_URL;
+  }
+
+  return '';
+}
+
+/**
  * Subtracts calendar days from a YYYY-MM-DD date string without timezone drift.
  * Pure calendar-date math using UTC date components.
  */
@@ -380,17 +423,18 @@ export function transformSheetRowToTournament(
     }
   });
 
-  const finishVal = (row.finish || '').trim();
-  const scoreToParVal = (row.score_to_par || '').trim();
-  const teeTimeVal = (row.tee_time || '').trim();
-  const leaderboardUrl = (row.leaderboard_url || '').trim();
+  const finishVal = String(row.finish ?? '').trim();
+  const scoreToParVal = String(row.score_to_par ?? '').trim();
+  const teeTimeVal = String(row.tee_time ?? '').trim();
+  const leaderboardUrl = String(row.leaderboard_url ?? '').trim();
 
   // Extract year for season
   const yearFromDate = startDateCal ? parseInt(startDateCal.slice(0, 4), 10) : 2026;
-  const season = isNaN(yearFromDate) ? 2026 : yearFromDate;
+  const explicitSeason = parseInt(String(row.season ?? ''), 10);
+  const season = !isNaN(explicitSeason) ? explicitSeason : (isNaN(yearFromDate) ? 2026 : yearFromDate);
 
   return {
-    id,
+    id: String(row.event_id ?? '').trim() || id,
     player_id: playerId,
     slug: baseSlug,
     name: tournamentName,
@@ -417,20 +461,47 @@ export function transformSheetRowToTournament(
     round_3: row.round_3 !== undefined && String(row.round_3).trim() !== '' ? row.round_3 : undefined,
     round_4: row.round_4 !== undefined && String(row.round_4).trim() !== '' ? row.round_4 : undefined,
     player_name: playerName,
-    season
+    season,
+    event_id: String(row.event_id ?? '').trim() || undefined,
+    event_type: String(row.event_type ?? '').trim() || undefined,
+    total_strokes: String(row.total_strokes ?? '').trim() !== '' ? Number(row.total_strokes) : undefined,
+    finish_numeric: String(row.finish_numeric ?? '').trim() !== '' ? Number(row.finish_numeric) : undefined,
+    made_cut: String(row.made_cut ?? '').trim() !== ''
+      ? ['true', 'yes', '1'].includes(String(row.made_cut).trim().toLowerCase())
+      : undefined,
+    earnings: String(row.earnings ?? '').trim() !== '' ? Number(row.earnings) : undefined
   };
 }
+
+export function transformResultRowToTournament(
+  row: GoogleSheetTournamentRow,
+  index: number
+): Tournament | null {
+  const result = transformSheetRowToTournament(row, index);
+  if (!result) return null;
+  return {
+    ...result,
+    id: String(row.event_id ?? '').trim() || `result-${result.id}`,
+    status: 'Completed',
+    tournament_type: String(row.event_type ?? '').toLowerCase().includes('qualif') ? 'Qualifier' : result.tournament_type
+  };
+}
+
 
 /**
  * In-memory schedule cache
  */
 let cachedTournaments: Tournament[] | null = null;
+let cachedResults: Tournament[] = [];
+let cachedSiteContent: GoogleSheetSiteContentRow[] = [];
 let lastFetchTime: number = 0;
 let pendingFetchPromise: Promise<ScheduleFetchResult> | null = null;
 const CACHE_TTL_MS = 60 * 1000; // 60 seconds
 
 export interface ScheduleFetchResult {
   tournaments: Tournament[];
+  results: Tournament[];
+  siteContent: GoogleSheetSiteContentRow[];
   currentTournaments: Tournament[];
   preparingTournaments: Tournament[];
   upcomingTournaments: Tournament[];
@@ -486,6 +557,8 @@ export async function fetchScheduleFromGoogleSheets(
     const sorted = sortTournaments(cachedTournaments);
     return {
       tournaments: sorted,
+      results: cachedResults,
+      siteContent: cachedSiteContent,
       currentTournaments: sorted.filter((t) => t.status === 'Current'),
       preparingTournaments: sorted.filter((t) => t.status === 'Preparing'),
       upcomingTournaments: sorted.filter((t) => t.status === 'Upcoming'),
@@ -517,27 +590,46 @@ export async function fetchScheduleFromGoogleSheets(
 
       const rawData = await response.json();
 
-      if (!Array.isArray(rawData)) {
+      // Backward compatible: old endpoint returned Schedule directly as an array.
+      // New endpoint returns every sheet tab in one object.
+      const workbook: GoogleSheetsWorkbookResponse = Array.isArray(rawData)
+        ? { Schedule: rawData }
+        : rawData;
+
+      if (!workbook || typeof workbook !== 'object') {
         throw new Error('Invalid JSON data format');
       }
 
+      const scheduleRows = Array.isArray(workbook.Schedule) ? workbook.Schedule : [];
+      const resultRows = Array.isArray(workbook.Results) ? workbook.Results : [];
+      const siteContentRows = Array.isArray(workbook['Site Content']) ? workbook['Site Content'] : [];
+
       const todayCal = getTodayCalendarDate();
       const parsedTournaments: Tournament[] = [];
+      const parsedResults: Tournament[] = [];
 
-      rawData.forEach((row: GoogleSheetTournamentRow, idx: number) => {
+      scheduleRows.forEach((row: GoogleSheetTournamentRow, idx: number) => {
         const item = transformSheetRowToTournament(row, idx, todayCal);
-        if (item) {
-          parsedTournaments.push(item);
-        }
+        if (item) parsedTournaments.push(item);
+      });
+
+      resultRows.forEach((row: GoogleSheetTournamentRow, idx: number) => {
+        const item = transformResultRowToTournament(row, idx);
+        if (item) parsedResults.push(item);
       });
 
       const sorted = sortTournaments(parsedTournaments);
+      const sortedResults = parsedResults.sort((a, b) => b.end_date.localeCompare(a.end_date));
 
       cachedTournaments = sorted;
+      cachedResults = sortedResults;
+      cachedSiteContent = siteContentRows;
       lastFetchTime = Date.now();
 
       return {
         tournaments: sorted,
+        results: sortedResults,
+        siteContent: siteContentRows,
         currentTournaments: sorted.filter((t) => t.status === 'Current'),
         preparingTournaments: sorted.filter((t) => t.status === 'Preparing'),
         upcomingTournaments: sorted.filter((t) => t.status === 'Upcoming'),
@@ -554,6 +646,8 @@ export async function fetchScheduleFromGoogleSheets(
       const fallbackList = cachedTournaments ? sortTournaments(cachedTournaments) : [];
       return {
         tournaments: fallbackList,
+        results: cachedResults,
+        siteContent: cachedSiteContent,
         currentTournaments: fallbackList.filter((t) => t.status === 'Current'),
         preparingTournaments: fallbackList.filter((t) => t.status === 'Preparing'),
         upcomingTournaments: fallbackList.filter((t) => t.status === 'Upcoming'),

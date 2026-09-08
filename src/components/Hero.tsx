@@ -3,6 +3,7 @@ import { useGolfData } from '../context/GolfDataContext';
 import { ArrowRight, ExternalLink, Radio, Calendar, MapPin, Trophy, Heart, ChevronRight, Clock, Play, Pause } from 'lucide-react';
 import { Tournament, Player } from '../types';
 import { siteContent } from '../data/siteContent';
+import { getLeaderboardUrl } from '../services/schedule';
 
 export const Hero: React.FC = () => {
   const {
@@ -342,9 +343,9 @@ export const Hero: React.FC = () => {
 
                 {/* Leaderboard Action Controls */}
                 <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5">
-                  {currentEvent?.leaderboard_url && (
+                  {currentEvent && getLeaderboardUrl(currentEvent) && (
                     <a
-                      href={currentEvent.leaderboard_url}
+                      href={getLeaderboardUrl(currentEvent)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full sm:flex-1 py-2.5 px-4 rounded-md bg-[#244437] hover:bg-[#1b342a] text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center justify-center gap-1.5 transition-colors"

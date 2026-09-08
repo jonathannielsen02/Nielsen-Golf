@@ -34,6 +34,8 @@ interface GolfDataContextType {
   jonathan: Player | null;
   tim: Player | null;
   tournaments: Tournament[];
+  results: Tournament[];
+  verseOfTheWeek: { reference: string; text: string; translation: string };
   jonathanTournaments: Tournament[];
   timTournaments: Tournament[];
   sponsors: Sponsor[];
@@ -95,6 +97,12 @@ const GolfDataContext = createContext<GolfDataContextType | undefined>(undefined
 export const GolfDataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [players, setPlayers] = useState<Player[]>(initialPlayers);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [results, setResults] = useState<Tournament[]>([]);
+  const [verseOfTheWeek, setVerseOfTheWeek] = useState({
+    reference: 'Colossians 3:23',
+    text: 'Whatever you do, work heartily, as for the Lord and not for men,',
+    translation: 'ESV'
+  });
   const [sponsors, setSponsors] = useState<Sponsor[]>(initialSponsors);
   const [sponsorshipPackages, setSponsorshipPackages] = useState<SponsorshipPackage[]>(initialSponsorshipPackages);
   const [donations, setDonations] = useState<Donation[]>(initialDonations);
@@ -123,6 +131,22 @@ export const GolfDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       } else if (scheduleResult.isError) {
         setIsScheduleError(true);
         setScheduleErrorMessage(scheduleResult.errorMessage || 'Schedule temporarily unavailable.');
+      } else {
+        setTournaments([]);
+      }
+
+      setResults(scheduleResult.results || []);
+
+      const verseRow = (scheduleResult.siteContent || []).find(
+        (row) => String(row.key || '').trim().toLowerCase() === 'verse_of_the_week'
+      );
+      if (verseRow) {
+        const reference = String(verseRow.reference || '').trim();
+        const text = String(verseRow.text || '').trim();
+        const translation = String(verseRow.translation || 'ESV').trim() || 'ESV';
+        if (reference && text) {
+          setVerseOfTheWeek({ reference, text, translation });
+        }
       }
 
       // Secondary client-side / API data for non-tournament models
@@ -292,8 +316,8 @@ export const GolfDataProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   }
 
-  const jonathanSeasonStats = calculatePlayerSeasonStats(tournaments, 'jonathan', 2026);
-  const timSeasonStats = calculatePlayerSeasonStats(tournaments, 'tim', 2026);
+  const jonathanSeasonStats = calculatePlayerSeasonStats(results, 'jonathan', 2026);
+  const timSeasonStats = calculatePlayerSeasonStats(results, 'tim', 2026);
 
   const getPlayerBySlugOrId = (identifier: string): Player | null => {
     return players.find(p => p.slug === identifier || p.id === identifier || (identifier === 'jonathan' && p.slug === 'jonathan') || (identifier === 'tim' && p.slug === 'tim')) || null;
@@ -536,6 +560,8 @@ export const GolfDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         jonathan,
         tim,
         tournaments,
+        results,
+        verseOfTheWeek,
         jonathanTournaments,
         timTournaments,
         sponsors,

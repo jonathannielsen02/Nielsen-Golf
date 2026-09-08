@@ -1,8 +1,8 @@
 import React from 'react';
-import { siteContent } from '../data/siteContent';
+import { useGolfData } from '../context/GolfDataContext';
 
 export const VerseOfTheWeek: React.FC = () => {
-  const { verseOfTheWeek } = siteContent;
+  const { verseOfTheWeek } = useGolfData();
 
   return (
     <section className="bg-[#ECEAE4] border-y border-[#D9D6CC]">
@@ -21,7 +21,7 @@ export const VerseOfTheWeek: React.FC = () => {
           </p>
 
           <p className="mt-5 text-xs sm:text-sm font-bold uppercase tracking-[0.18em] text-[#244437]">
-            {verseOfTheWeek.reference}
+            {verseOfTheWeek.reference} <span className="text-[#8A806C]">· {verseOfTheWeek.translation}</span>
           </p>
 
           <p className="mt-7 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8A806C]">

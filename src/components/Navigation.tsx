@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGolfData } from '../context/GolfDataContext';
 import { Menu, X, ExternalLink, Calendar, ShieldCheck, ChevronRight, ChevronDown, Radio } from 'lucide-react';
+import { getLeaderboardUrl } from '../services/schedule';
 
 export const Navigation: React.FC = () => {
   const {
@@ -121,7 +122,7 @@ export const Navigation: React.FC = () => {
                     </div>
 
                     <a
-                      href={jonathanCurrentTournament?.leaderboard_url || 'https://www.pgatour.com/americas/leaderboard'}
+                      href={getLeaderboardUrl(jonathanCurrentTournament)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-between px-3.5 py-3 hover:bg-[#ECEAE4] transition-colors border-b border-[#E2DFD7]"
@@ -132,13 +133,13 @@ export const Navigation: React.FC = () => {
                           <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
                           <span className="text-xs font-bold text-[#202421] uppercase">Jonathan Live</span>
                         </div>
-                        <p className="text-[11px] text-[#656A65] mt-0.5">{jonathanCurrentTournament?.name} ({jonathanCurrentTournament?.final_finish || '-9'})</p>
+                        <p className="text-[11px] text-[#656A65] mt-0.5">{jonathanCurrentTournament?.name}{jonathanCurrentTournament?.final_finish ? ` (${jonathanCurrentTournament.final_finish})` : ''}</p>
                       </div>
                       <ExternalLink className="w-3.5 h-3.5 text-[#244437] ml-2" />
                     </a>
 
                     <a
-                      href={timCurrentTournament?.leaderboard_url || 'https://www.pgatour.com/americas/leaderboard'}
+                      href={getLeaderboardUrl(timCurrentTournament)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-between px-3.5 py-3 hover:bg-[#ECEAE4] transition-colors"
@@ -149,7 +150,7 @@ export const Navigation: React.FC = () => {
                           <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
                           <span className="text-xs font-bold text-[#202421] uppercase">Tim Live</span>
                         </div>
-                        <p className="text-[11px] text-[#656A65] mt-0.5">{timCurrentTournament?.name} ({timCurrentTournament?.final_finish || '-4'})</p>
+                        <p className="text-[11px] text-[#656A65] mt-0.5">{timCurrentTournament?.name}{timCurrentTournament?.final_finish ? ` (${timCurrentTournament.final_finish})` : ''}</p>
                       </div>
                       <ExternalLink className="w-3.5 h-3.5 text-[#244437] ml-2" />
                     </a>
@@ -158,7 +159,7 @@ export const Navigation: React.FC = () => {
               </div>
             ) : isJonathanActive ? (
               <a
-                href={jonathanCurrentTournament?.leaderboard_url || 'https://www.pgatour.com/americas/leaderboard'}
+                href={getLeaderboardUrl(jonathanCurrentTournament)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#244437] hover:bg-[#1b342a] text-white text-xs font-extrabold tracking-wider uppercase shadow-sm transition-all"
@@ -172,7 +173,7 @@ export const Navigation: React.FC = () => {
               </a>
             ) : isTimActive ? (
               <a
-                href={timCurrentTournament?.leaderboard_url || 'https://www.pgatour.com/americas/leaderboard'}
+                href={getLeaderboardUrl(timCurrentTournament)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-[#244437] hover:bg-[#1b342a] text-white text-xs font-extrabold tracking-wider uppercase shadow-sm transition-all"
@@ -236,12 +237,12 @@ export const Navigation: React.FC = () => {
               <div>
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-widest text-[#244437] uppercase">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span>
-                  Jonathan • Live ({jonathanCurrentTournament.final_score_to_par})
+                  Jonathan • Live{jonathanCurrentTournament.final_score_to_par ? ` (${jonathanCurrentTournament.final_score_to_par})` : ''}
                 </span>
                 <p className="text-xs font-bold text-[#202421] leading-tight mt-0.5">{jonathanCurrentTournament.name}</p>
               </div>
               <a
-                href={jonathanCurrentTournament.leaderboard_url}
+                href={getLeaderboardUrl(jonathanCurrentTournament)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-2.5 py-1.5 bg-[#244437] text-white text-[11px] font-bold rounded flex items-center gap-1"
@@ -257,12 +258,12 @@ export const Navigation: React.FC = () => {
               <div>
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-widest text-[#244437] uppercase">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span>
-                  Tim • Live ({timCurrentTournament.final_score_to_par})
+                  Tim • Live{timCurrentTournament.final_score_to_par ? ` (${timCurrentTournament.final_score_to_par})` : ''}
                 </span>
                 <p className="text-xs font-bold text-[#202421] leading-tight mt-0.5">{timCurrentTournament.name}</p>
               </div>
               <a
-                href={timCurrentTournament.leaderboard_url}
+                href={getLeaderboardUrl(timCurrentTournament)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-2.5 py-1.5 bg-[#244437] text-white text-[11px] font-bold rounded flex items-center gap-1"

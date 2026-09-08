@@ -5,7 +5,8 @@ import {
   formatCalendarDateRange,
   formatVenue,
   formatLocation,
-  isValidUrl
+  isValidUrl,
+  getLeaderboardUrl
 } from '../services/schedule';
 import {
   Calendar,
@@ -242,7 +243,8 @@ export const ScheduleView: React.FC = () => {
               {currentList.map((t) => {
                 const golfer = getGolferBadge(t.player_id);
                 const venueText = formatVenue(t.course, t.city, t.state_country);
-                const hasLeaderboard = isValidUrl(t.leaderboard_url);
+                const leaderboardUrl = getLeaderboardUrl(t);
+                const hasLeaderboard = isValidUrl(leaderboardUrl);
                 const roundScores = [t.round_1, t.round_2, t.round_3, t.round_4].filter(
                   (v) => v !== undefined && String(v).trim() !== ''
                 );
@@ -327,7 +329,7 @@ export const ScheduleView: React.FC = () => {
                     <div className="flex flex-wrap items-center gap-3 mt-6 pt-4 border-t border-[#D9D6CC]">
                       {hasLeaderboard && (
                         <a
-                          href={t.leaderboard_url}
+                          href={leaderboardUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="px-4 py-2.5 rounded-lg bg-[#244437] hover:bg-[#1b342a] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-all hover:scale-[1.02]"

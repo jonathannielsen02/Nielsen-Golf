@@ -39,7 +39,10 @@ export function calculatePlayerSeasonStats(tournaments: Tournament[], playerId?:
 
     if (t.final_finish) {
       const finish = t.final_finish.trim().toUpperCase();
-      if (finish !== 'MC' && finish !== 'WD' && finish !== 'DQ') {
+      const isQualifier = (t.event_type || '').toLowerCase().includes('qualif');
+      if (t.made_cut === true) {
+        cutsMade += 1;
+      } else if (t.made_cut === undefined && !isQualifier && !['MC', 'CUT', 'WD', 'DQ', 'DNQ'].includes(finish)) {
         cutsMade += 1;
       }
 
@@ -82,20 +85,19 @@ export function calculatePlayerSeasonStats(tournaments: Tournament[], playerId?:
     }
   });
 
-  const defaultAvg = playerId?.includes('tim') ? 68.85 : 68.25;
-  const scoringAverage = totalRoundsCount > 0 ? parseFloat((totalRoundsScore / totalRoundsCount).toFixed(2)) : defaultAvg;
+  const scoringAverage = totalRoundsCount > 0 ? parseFloat((totalRoundsScore / totalRoundsCount).toFixed(2)) : 0;
 
   return {
     player_id: playerId,
     year,
-    starts: Math.max(starts, playerId?.includes('tim') ? 4 : 5),
-    cuts_made: Math.max(cutsMade, playerId?.includes('tim') ? 4 : 5),
-    top_10s: Math.max(top10s, playerId?.includes('tim') ? 2 : 2),
-    top_25s: Math.max(top25s, playerId?.includes('tim') ? 3 : 4),
+    starts,
+    cuts_made: cutsMade,
+    top_10s: top10s,
+    top_25s: top25s,
     wins,
-    best_finish: bestFinishText !== '—' ? bestFinishText : (playerId?.includes('tim') ? 'T5' : '3rd'),
+    best_finish: bestFinishText,
     scoring_average: scoringAverage,
-    earnings: totalEarnings > 0 ? totalEarnings : (playerId?.includes('tim') ? 23500 : 34350)
+    earnings: totalEarnings
   };
 }
 

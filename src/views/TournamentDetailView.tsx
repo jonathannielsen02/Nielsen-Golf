@@ -206,7 +206,7 @@ export const TournamentDetailView: React.FC = () => {
                 <div>
                   <span className="text-[#656A65] uppercase text-[10px] block font-bold">To Par</span>
                   <span className="font-mono font-bold text-[#244437] text-lg block mt-0.5">
-                    {tournament.final_score_to_par || '-9'}
+                    {tournament.final_score_to_par || '—'}
                   </span>
                 </div>
                 <div>

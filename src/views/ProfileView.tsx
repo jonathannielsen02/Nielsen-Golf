@@ -22,6 +22,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { Player, Tournament } from '../types';
+import { getLeaderboardUrl } from '../services/schedule';
 
 interface ProfileViewProps {
   playerSlug?: string;
@@ -35,6 +36,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ playerSlug }) => {
     jonathan,
     tim,
     tournaments,
+    results,
     careerHighlights,
     careerTimeline,
     setSelectedTournamentSlug
@@ -52,11 +54,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ playerSlug }) => {
   const playerTournaments = tournaments.filter(t => t.player_id === player.id || t.player_id.includes(player.slug));
   const playerHighlights = careerHighlights.filter(h => h.player_id === player.id);
   const playerTimelineEvents = careerTimeline.filter(t => t.player_id === player.id);
-  const stats = calculatePlayerSeasonStats(tournaments, player.slug, selectedYear);
+  const playerResults = results.filter(t => t.player_id === player.id || t.player_id.includes(player.slug));
+  const stats = calculatePlayerSeasonStats(results, player.slug, selectedYear);
 
   const preparingTournaments = playerTournaments.filter(t => t.status === 'Preparing');
   const upcomingTournaments = playerTournaments.filter(t => t.status === 'Upcoming');
-  const completedTournaments = playerTournaments.filter(t => t.status === 'Completed');
+  const completedTournaments = playerResults.filter(t => Number(t.season || t.start_date?.slice(0, 4)) === selectedYear);
   const currentTournament = playerTournaments.find(t => t.status === 'Current');
   const preparingTournament = playerTournaments.find(t => t.status === 'Preparing');
   const activeEvent = currentTournament || preparingTournament;
@@ -109,7 +112,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ playerSlug }) => {
 
           {currentTournament ? (
             <a
-              href={currentTournament.leaderboard_url}
+              href={getLeaderboardUrl(currentTournament)}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-[#244437] hover:bg-[#1b342a] text-white text-xs font-bold uppercase tracking-wider shadow-sm transition-colors"
@@ -327,27 +330,27 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ playerSlug }) => {
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
                 <div className="bg-white border border-slate-300 rounded-xl p-4 text-center shadow-2xs">
                   <span className="text-[11px] font-bold uppercase text-[#656A65] block">Starts</span>
-                  <span className="font-mono text-2xl font-black text-slate-900 mt-1 block">{stats.starts}</span>
+                  <span className="font-mono text-2xl font-black text-slate-900 mt-1 block">{stats.starts > 0 ? stats.starts : 'Pending'}</span>
                 </div>
                 <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-4 text-center shadow-2xs">
                   <span className="text-[11px] font-extrabold uppercase text-emerald-900 block">Cuts Made</span>
-                  <span className="font-mono text-2xl font-black text-emerald-800 mt-1 block">{stats.cuts_made}</span>
+                  <span className="font-mono text-2xl font-black text-emerald-800 mt-1 block">{stats.starts > 0 ? stats.cuts_made : 'Pending'}</span>
                 </div>
                 <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-center shadow-2xs">
                   <span className="text-[11px] font-extrabold uppercase text-amber-900 block">Top 10s</span>
-                  <span className="font-mono text-2xl font-black text-amber-800 mt-1 block">{stats.top_10s}</span>
+                  <span className="font-mono text-2xl font-black text-amber-800 mt-1 block">{stats.starts > 0 ? stats.top_10s : 'Pending'}</span>
                 </div>
                 <div className="bg-blue-50 border border-blue-300 rounded-xl p-4 text-center shadow-2xs">
                   <span className="text-[11px] font-extrabold uppercase text-blue-900 block">Top 25s</span>
-                  <span className="font-mono text-2xl font-black text-blue-800 mt-1 block">{stats.top_25s}</span>
+                  <span className="font-mono text-2xl font-black text-blue-800 mt-1 block">{stats.starts > 0 ? stats.top_25s : 'Pending'}</span>
                 </div>
                 <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-4 text-center shadow-2xs">
                   <span className="text-[11px] font-extrabold uppercase text-emerald-900 block">Best Finish</span>
-                  <span className="font-mono text-2xl font-black text-emerald-800 mt-1 block">{stats.best_finish}</span>
+                  <span className="font-mono text-2xl font-black text-emerald-800 mt-1 block">{stats.starts > 0 ? stats.best_finish : 'Pending'}</span>
                 </div>
                 <div className="bg-teal-50 border border-teal-300 rounded-xl p-4 text-center shadow-2xs">
                   <span className="text-[11px] font-extrabold uppercase text-teal-900 block">Scoring Avg</span>
-                  <span className="font-mono text-2xl font-black text-teal-800 mt-1 block">{stats.scoring_average}</span>
+                  <span className="font-mono text-2xl font-black text-teal-800 mt-1 block">{stats.starts > 0 && stats.scoring_average ? stats.scoring_average.toFixed(2) : 'Pending'}</span>
                 </div>
               </div>
             </div>

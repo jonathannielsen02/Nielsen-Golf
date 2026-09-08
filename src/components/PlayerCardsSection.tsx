@@ -2,6 +2,7 @@ import React from 'react';
 import { useGolfData } from '../context/GolfDataContext';
 import { ExternalLink, ArrowRight, Calendar, Radio } from 'lucide-react';
 import { Player, Tournament } from '../types';
+import { getLeaderboardUrl } from '../services/schedule';
 
 export const PlayerCardsSection: React.FC = () => {
   const {
@@ -232,7 +233,7 @@ const PlayerCardItem: React.FC<PlayerCardItemProps> = ({
 
         {isLive && currentTournament && (
           <a
-            href={currentTournament.leaderboard_url}
+            href={getLeaderboardUrl(currentTournament)}
             target="_blank"
             rel="noopener noreferrer"
             className="px-5 py-3 rounded-lg bg-white hover:bg-emerald-50 text-[#244437] font-bold text-xs uppercase tracking-wider border border-[#244437]/30 shadow-2xs flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
