@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { BarChart3, ExternalLink } from 'lucide-react';
 import { PlayerFilter, Tournament } from '../types';
 import { useGolfData } from '../context/GolfDataContext';
-import { calculatePlayerSeasonStats, formatCurrency } from '../utils/statsCalculator';
+import { calculatePlayerSeasonStats } from '../utils/statsCalculator';
 import { formatCalendarDateRange, formatVenue, getLeaderboardUrl } from '../services/schedule';
 
 const playerMatches = (t: Tournament, filter: PlayerFilter) => {
@@ -178,9 +178,6 @@ export const ResultsView: React.FC = () => {
                         <span className="block text-[9px] font-bold uppercase tracking-wider text-[#656A65]">Score</span>
                         <span className="font-mono font-black text-[#244437]">{displayScoreToPar(result.score_to_par)}</span>
                       </div>
-                      {typeof result.earnings === 'number' && result.earnings > 0 && (
-                        <span className="text-xs font-bold text-[#656A65]">{formatCurrency(result.earnings)}</span>
-                      )}
                       {result.leaderboard_url && leaderboardUrl && (
                         <a href={leaderboardUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#244437] hover:underline">
                           Official <ExternalLink className="w-3 h-3" />

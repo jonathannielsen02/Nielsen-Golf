@@ -45,6 +45,24 @@ export interface PlayerInfo {
   displayName: string;
 }
 
+
+export interface GoogleSheetPlayerRow {
+  player?: string;
+  bio?: string;
+  training_base?: string;
+  college?: string;
+  turned_pro?: string | number;
+  faith_statement?: string;
+  journey?: string;
+  career_highlights?: string;
+  favorite_sports_team?: string;
+  favorite_course?: string;
+  favorite_hobbies?: string;
+  dream_vacation?: string;
+  ideal_tee_time?: string;
+  [key: string]: unknown;
+}
+
 export interface GoogleSheetSiteContentRow {
   key?: string;
   reference?: string;
@@ -57,6 +75,7 @@ export interface GoogleSheetsWorkbookResponse {
   Schedule?: GoogleSheetTournamentRow[];
   Results?: GoogleSheetTournamentRow[];
   'Site Content'?: GoogleSheetSiteContentRow[];
+  Players?: GoogleSheetPlayerRow[];
   [sheetName: string]: unknown;
 }
 
@@ -494,6 +513,7 @@ export function transformResultRowToTournament(
 let cachedTournaments: Tournament[] | null = null;
 let cachedResults: Tournament[] = [];
 let cachedSiteContent: GoogleSheetSiteContentRow[] = [];
+let cachedPlayers: GoogleSheetPlayerRow[] = [];
 let lastFetchTime: number = 0;
 let pendingFetchPromise: Promise<ScheduleFetchResult> | null = null;
 const CACHE_TTL_MS = 60 * 1000; // 60 seconds
@@ -502,6 +522,7 @@ export interface ScheduleFetchResult {
   tournaments: Tournament[];
   results: Tournament[];
   siteContent: GoogleSheetSiteContentRow[];
+  players: GoogleSheetPlayerRow[];
   currentTournaments: Tournament[];
   preparingTournaments: Tournament[];
   upcomingTournaments: Tournament[];
@@ -559,6 +580,7 @@ export async function fetchScheduleFromGoogleSheets(
       tournaments: sorted,
       results: cachedResults,
       siteContent: cachedSiteContent,
+      players: cachedPlayers,
       currentTournaments: sorted.filter((t) => t.status === 'Current'),
       preparingTournaments: sorted.filter((t) => t.status === 'Preparing'),
       upcomingTournaments: sorted.filter((t) => t.status === 'Upcoming'),
@@ -603,6 +625,7 @@ export async function fetchScheduleFromGoogleSheets(
       const scheduleRows = Array.isArray(workbook.Schedule) ? workbook.Schedule : [];
       const resultRows = Array.isArray(workbook.Results) ? workbook.Results : [];
       const siteContentRows = Array.isArray(workbook['Site Content']) ? workbook['Site Content'] : [];
+      const playerRows = Array.isArray(workbook.Players) ? workbook.Players : [];
 
       const todayCal = getTodayCalendarDate();
       const parsedTournaments: Tournament[] = [];
@@ -624,12 +647,14 @@ export async function fetchScheduleFromGoogleSheets(
       cachedTournaments = sorted;
       cachedResults = sortedResults;
       cachedSiteContent = siteContentRows;
+      cachedPlayers = playerRows;
       lastFetchTime = Date.now();
 
       return {
         tournaments: sorted,
         results: sortedResults,
         siteContent: siteContentRows,
+        players: playerRows,
         currentTournaments: sorted.filter((t) => t.status === 'Current'),
         preparingTournaments: sorted.filter((t) => t.status === 'Preparing'),
         upcomingTournaments: sorted.filter((t) => t.status === 'Upcoming'),
@@ -648,6 +673,7 @@ export async function fetchScheduleFromGoogleSheets(
         tournaments: fallbackList,
         results: cachedResults,
         siteContent: cachedSiteContent,
+        players: cachedPlayers,
         currentTournaments: fallbackList.filter((t) => t.status === 'Current'),
         preparingTournaments: fallbackList.filter((t) => t.status === 'Preparing'),
         upcomingTournaments: fallbackList.filter((t) => t.status === 'Upcoming'),

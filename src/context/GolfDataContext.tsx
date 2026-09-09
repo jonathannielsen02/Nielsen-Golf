@@ -137,6 +137,35 @@ export const GolfDataProvider: React.FC<{ children: ReactNode }> = ({ children }
 
       setResults(scheduleResult.results || []);
 
+      // Merge editable profile content from the Google Sheets `Players` tab
+      // into the existing player records so photos/IDs remain code-managed.
+      if (scheduleResult.players && scheduleResult.players.length > 0) {
+        setPlayers(currentPlayers => currentPlayers.map(player => {
+          const row = scheduleResult.players.find(r => {
+            const name = String(r.player || '').trim().toLowerCase();
+            return name === player.display_name.toLowerCase() || name.includes(player.first_name.toLowerCase());
+          });
+          if (!row) return player;
+          const turnedProRaw = String(row.turned_pro ?? '').trim();
+          const turnedPro = turnedProRaw ? Number(turnedProRaw) : player.turned_pro;
+          return {
+            ...player,
+            bio: String(row.bio || '').trim() || player.bio,
+            training_base: String(row.training_base || '').trim(),
+            college: String(row.college || '').trim() || player.college,
+            turned_pro: Number.isFinite(turnedPro) ? turnedPro : player.turned_pro,
+            faith_statement: String(row.faith_statement || '').trim(),
+            journey: String(row.journey || '').trim(),
+            career_highlights: String(row.career_highlights || '').trim(),
+            favorite_sports_team: String(row.favorite_sports_team || '').trim(),
+            favorite_course: String(row.favorite_course || '').trim(),
+            favorite_hobbies: String(row.favorite_hobbies || '').trim(),
+            dream_vacation: String(row.dream_vacation || '').trim(),
+            ideal_tee_time: String(row.ideal_tee_time || '').trim()
+          };
+        }));
+      }
+
       const verseRow = (scheduleResult.siteContent || []).find(
         (row) => String(row.key || '').trim().toLowerCase() === 'verse_of_the_week'
       );

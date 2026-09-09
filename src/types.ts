@@ -99,6 +99,15 @@ export interface Player {
   linkedin_url?: string;
   website_url?: string;
   active: boolean;
+  training_base?: string;
+  faith_statement?: string;
+  journey?: string;
+  career_highlights?: string;
+  favorite_sports_team?: string;
+  favorite_course?: string;
+  favorite_hobbies?: string;
+  dream_vacation?: string;
+  ideal_tee_time?: string;
 }
 
 export interface Sponsor {
@@ -137,6 +146,15 @@ export interface SponsorshipPackage {
   additional_benefits?: string[];
   applies_to?: 'jonathan' | 'tim' | 'both';
   active: boolean;
+  training_base?: string;
+  faith_statement?: string;
+  journey?: string;
+  career_highlights?: string;
+  favorite_sports_team?: string;
+  favorite_course?: string;
+  favorite_hobbies?: string;
+  dream_vacation?: string;
+  ideal_tee_time?: string;
 }
 
 export interface Donation {
@@ -169,6 +187,15 @@ export interface InvestmentOpportunity {
   investment_summary: string;
   risk_disclosure: string;
   active: boolean;
+  training_base?: string;
+  faith_statement?: string;
+  journey?: string;
+  career_highlights?: string;
+  favorite_sports_team?: string;
+  favorite_course?: string;
+  favorite_hobbies?: string;
+  dream_vacation?: string;
+  ideal_tee_time?: string;
 }
 
 export interface InvestorInquiry {
@@ -225,6 +252,15 @@ export interface Follower {
   follow_preference: FollowPreference;
   signup_date: string;
   active: boolean;
+  training_base?: string;
+  faith_statement?: string;
+  journey?: string;
+  career_highlights?: string;
+  favorite_sports_team?: string;
+  favorite_course?: string;
+  favorite_hobbies?: string;
+  dream_vacation?: string;
+  ideal_tee_time?: string;
 }
 
 export interface SeasonStats {
