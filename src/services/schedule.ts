@@ -79,6 +79,25 @@ export interface GoogleSheetsWorkbookResponse {
   [sheetName: string]: unknown;
 }
 
+function normalizeKey(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+}
+
+function normalizeRowKeys<T extends Record<string, unknown>>(row: T): Record<string, unknown> {
+  const normalized: Record<string, unknown> = {};
+  Object.entries(row || {}).forEach(([key, value]) => {
+    normalized[normalizeKey(key)] = value;
+  });
+  return normalized;
+}
+
+function getWorkbookSheetRows(workbook: GoogleSheetsWorkbookResponse, wantedName: string): Record<string, unknown>[] {
+  const wanted = normalizeKey(wantedName);
+  const match = Object.entries(workbook).find(([sheetName, value]) => normalizeKey(sheetName) === wanted && Array.isArray(value));
+  if (!match) return [];
+  return (match[1] as Record<string, unknown>[]).map(row => normalizeRowKeys(row));
+}
+
 export const PGA_TOUR_AMERICAS_LEADERBOARD_URL =
   'https://www.pgatour.com/americas/leaderboard';
 
@@ -389,9 +408,9 @@ export function transformSheetRowToTournament(
   todayCal: string = getTodayCalendarDate()
 ): Tournament | null {
   // Check if row has minimum necessary info (filter out blank rows in Google Sheets)
-  const rawTournamentName = (row.tournament || '').trim();
-  const rawStartDate = (row.start_date || '').trim();
-  const rawPlayer = (row.player || '').trim();
+  const rawTournamentName = String(row.tournament ?? '').trim();
+  const rawStartDate = String(row.start_date ?? '').trim();
+  const rawPlayer = String(row.player ?? '').trim();
 
   if (!rawTournamentName && !rawStartDate) {
     return null; // Empty row
@@ -406,7 +425,7 @@ export function transformSheetRowToTournament(
   const endDateCal = extractCalendarDate(row.end_date) || startDateCal;
 
   // Fallback tournament name if blank in sheet
-  const tourName = (row.tour || '').trim();
+  const tourName = String(row.tour ?? '').trim();
   const tournamentName =
     rawTournamentName ||
     (tourName ? `${tourName} Tournament` : 'Scheduled Tournament');
@@ -458,11 +477,11 @@ export function transformSheetRowToTournament(
     slug: baseSlug,
     name: tournamentName,
     tour: tourName || 'Professional Golf Tour',
-    course: (row.course || '').trim(),
-    city: (row.city || '').trim(),
-    state: (row.state_country || '').trim(),
-    country: (row.state_country || '').trim(),
-    state_country: (row.state_country || '').trim(),
+    course: String(row.course ?? '').trim(),
+    city: String(row.city ?? '').trim(),
+    state: String(row.state_country ?? '').trim(),
+    country: String(row.state_country ?? '').trim(),
+    state_country: String(row.state_country ?? '').trim(),
     start_date: startDateCal,
     end_date: endDateCal,
     status,
@@ -473,7 +492,7 @@ export function transformSheetRowToTournament(
     finish: finishVal || undefined,
     score_to_par: scoreToParVal || undefined,
     tee_time: teeTimeVal || undefined,
-    notes: (row.notes || '').trim() || undefined,
+    notes: String(row.notes ?? '').trim() || undefined,
     rounds: rounds.length > 0 ? rounds : undefined,
     round_1: row.round_1 !== undefined && String(row.round_1).trim() !== '' ? row.round_1 : undefined,
     round_2: row.round_2 !== undefined && String(row.round_2).trim() !== '' ? row.round_2 : undefined,
@@ -627,10 +646,12 @@ export async function fetchScheduleFromGoogleSheets(
         throw new Error('Invalid JSON data format');
       }
 
-      const scheduleRows = Array.isArray(workbook.Schedule) ? workbook.Schedule : [];
-      const resultRows = Array.isArray(workbook.Results) ? workbook.Results : [];
-      const siteContentRows = Array.isArray(workbook['Site Content']) ? workbook['Site Content'] : [];
-      const playerRows = Array.isArray(workbook.Players) ? workbook.Players : [];
+      // Match sheet names and headers case-insensitively and ignore accidental spaces.
+      // This makes `Players`, ` Results `, `Site Content`, etc. resilient to small Sheet formatting differences.
+      const scheduleRows = getWorkbookSheetRows(workbook, 'Schedule') as unknown as GoogleSheetTournamentRow[];
+      const resultRows = getWorkbookSheetRows(workbook, 'Results') as unknown as GoogleSheetTournamentRow[];
+      const siteContentRows = getWorkbookSheetRows(workbook, 'Site Content') as unknown as GoogleSheetSiteContentRow[];
+      const playerRows = getWorkbookSheetRows(workbook, 'Players') as unknown as GoogleSheetPlayerRow[];
 
       const todayCal = getTodayCalendarDate();
       const parsedTournaments: Tournament[] = [];

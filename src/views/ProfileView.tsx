@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useGolfData } from '../context/GolfDataContext';
 import { calculatePlayerSeasonStats, formatDateRange } from '../utils/statsCalculator';
 import { ArrowRight, Calendar, ExternalLink } from 'lucide-react';
@@ -17,6 +17,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ playerSlug }) => {
 
   const playerTournaments = tournaments.filter(t => t.player_id === player.id || t.player_id.includes(player.slug));
   const playerResults = results.filter(t => t.player_id === player.id || t.player_id.includes(player.slug));
+  const availableSeasons = useMemo(() => Array.from(new Set<number>(playerResults.map(t => Number(t.season || t.start_date?.slice(0, 4))).filter((y): y is number => Number.isFinite(y)))).sort((a, b) => b - a), [playerResults]);
+  useEffect(() => {
+    if (availableSeasons.length > 0 && !availableSeasons.includes(selectedYear)) setSelectedYear(availableSeasons[0]);
+  }, [availableSeasons, selectedYear]);
   const stats = calculatePlayerSeasonStats(results, player.slug, selectedYear);
   const preparingTournaments = playerTournaments.filter(t => t.status === 'Preparing');
   const upcomingTournaments = playerTournaments.filter(t => t.status === 'Upcoming');
@@ -81,7 +85,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ playerSlug }) => {
 
         {player.faith_statement && <section className="bg-[#244437] text-white rounded-2xl p-6 sm:p-8 lg:p-10"><span className="text-xs font-bold uppercase tracking-widest text-[#B49A6A]">Faith & Purpose</span><p className="max-w-4xl text-base sm:text-lg leading-relaxed mt-4 text-[#F5F3EE] whitespace-pre-line">{player.faith_statement}</p></section>}
 
-        <section className="bg-white border border-[#D9D6CC] rounded-2xl p-6 sm:p-8 shadow-sm"><div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6"><div><span className="text-xs font-bold uppercase tracking-widest text-[#B49A6A]">Performance</span><h3 className="text-2xl font-display font-black uppercase">Season Statistics</h3></div><div className="flex gap-1 bg-[#ECEAE4] p-1.5 rounded-xl">{[2026,2025,2024].map(year=><button key={year} onClick={()=>setSelectedYear(year)} className={`px-3 py-1.5 rounded-lg text-xs font-extrabold ${selectedYear===year?'bg-[#244437] text-white':'text-[#656A65]'}`}>{year}</button>)}</div></div><div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">{[['Starts',stats.starts],['Cuts Made',stats.cuts_made],['Top 10s',stats.top_10s],['Top 25s',stats.top_25s],['Best Finish',stats.best_finish],['Scoring Avg',stats.scoring_average?stats.scoring_average.toFixed(2):'—']].map(([label,value])=><div key={String(label)} className="bg-[#FAF9F6] border border-[#E2DFD7] rounded-xl p-4 text-center"><span className="text-[10px] font-bold uppercase text-[#656A65] block">{label}</span><span className="font-mono text-xl font-black mt-2 block">{stats.starts>0?value:'Pending'}</span></div>)}</div></section>
+        <section className="bg-white border border-[#D9D6CC] rounded-2xl p-6 sm:p-8 shadow-sm"><div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6"><div><span className="text-xs font-bold uppercase tracking-widest text-[#B49A6A]">Performance</span><h3 className="text-2xl font-display font-black uppercase">Season Statistics</h3></div><div className="flex gap-1 bg-[#ECEAE4] p-1.5 rounded-xl">{(availableSeasons.length > 0 ? availableSeasons : [2026,2025,2024]).map(year=><button key={year} onClick={()=>setSelectedYear(year)} className={`px-3 py-1.5 rounded-lg text-xs font-extrabold ${selectedYear===year?'bg-[#244437] text-white':'text-[#656A65]'}`}>{year}</button>)}</div></div><div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">{[['Starts',stats.starts],['Cuts Made',stats.cuts_made],['Top 10s',stats.top_10s],['Top 25s',stats.top_25s],['Best Finish',stats.best_finish],['Scoring Avg',stats.scoring_average?stats.scoring_average.toFixed(2):'—']].map(([label,value])=><div key={String(label)} className="bg-[#FAF9F6] border border-[#E2DFD7] rounded-xl p-4 text-center"><span className="text-[10px] font-bold uppercase text-[#656A65] block">{label}</span><span className="font-mono text-xl font-black mt-2 block">{stats.starts>0?value:'Pending'}</span></div>)}</div></section>
       </div>}
 
       {profileTab === 'schedule' && <div className="space-y-6">

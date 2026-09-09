@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { BarChart3, ExternalLink } from 'lucide-react';
 import { PlayerFilter, Tournament } from '../types';
 import { useGolfData } from '../context/GolfDataContext';
@@ -26,6 +26,13 @@ export const ResultsView: React.FC = () => {
   const [selectedTour, setSelectedTour] = useState<string>('All');
 
   const tours = useMemo(() => ['All', ...Array.from(new Set(results.map(r => r.tour).filter(Boolean)))], [results]);
+  const seasons = useMemo(() => Array.from(new Set<number>(results.map(r => Number(r.season || r.start_date?.slice(0, 4))).filter((y): y is number => Number.isFinite(y)))).sort((a, b) => b - a), [results]);
+
+  useEffect(() => {
+    if (seasons.length > 0 && !seasons.includes(selectedSeason)) {
+      setSelectedSeason(seasons[0]);
+    }
+  }, [seasons, selectedSeason]);
 
   const filtered = useMemo(() => results.filter((result) => {
     const season = Number(result.season || result.start_date?.slice(0, 4));
@@ -82,7 +89,7 @@ export const ResultsView: React.FC = () => {
           <div className="flex flex-wrap items-center gap-3 mt-6 pt-6 border-t border-[#D9D6CC]">
             <div className="flex items-center gap-1 bg-[#FAF9F6] border border-[#D9D6CC] rounded-lg p-1 text-xs">
               <span className="text-[#656A65] px-2 font-bold uppercase text-[10px]">Season:</span>
-              {[2026, 2025, 2024].map((year) => (
+              {(seasons.length > 0 ? seasons : [2026, 2025, 2024]).map((year) => (
                 <button key={year} onClick={() => setSelectedSeason(year)} className={`px-3 py-1 rounded font-bold uppercase transition-colors ${selectedSeason === year ? 'bg-[#244437] text-white' : 'text-[#656A65] hover:text-[#202421]'}`}>
                   {year}
                 </button>

@@ -7,8 +7,8 @@ export function calculatePlayerSeasonStats(tournaments: Tournament[], playerId?:
     if (playerId && t.player_id !== playerId && !t.player_id.includes(playerId)) {
       return false;
     }
-    if (!t.start_date) return false;
-    return t.start_date.startsWith(yearStr) && (t.status === 'Completed' || (t.status === 'Current' && (t.rounds?.length || 0) > 0));
+    const tournamentYear = String(t.season || t.start_date?.slice(0, 4) || '');
+    return tournamentYear === yearStr && (t.status === 'Completed' || (t.status === 'Current' && (t.rounds?.length || 0) > 0));
   });
 
   const starts = playerTournaments.length;
