@@ -625,8 +625,11 @@ export async function fetchScheduleFromGoogleSheets(
         method: 'GET',
         cache: 'no-store',
         headers: {
-          Accept: 'application/json',
-          'Cache-Control': 'no-cache'
+          // Keep this a CORS-simple request. Custom Cache-Control headers
+          // trigger an OPTIONS preflight that Google Apps Script web apps
+          // do not reliably answer. The timestamp query param above handles
+          // cache busting without a preflight.
+          Accept: 'application/json'
         }
       });
 
