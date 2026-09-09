@@ -599,10 +599,15 @@ export async function fetchScheduleFromGoogleSheets(
 
   pendingFetchPromise = (async () => {
     try {
-      const response = await fetch(GOOGLE_SHEETS_SCHEDULE_ENDPOINT, {
+      // Add a cache-busting query parameter so profile/result edits in Google Sheets
+      // are reflected immediately instead of a browser/CDN reusing an older Apps Script response.
+      const endpointUrl = `${GOOGLE_SHEETS_SCHEDULE_ENDPOINT}?_=${Date.now()}`;
+      const response = await fetch(endpointUrl, {
         method: 'GET',
+        cache: 'no-store',
         headers: {
-          Accept: 'application/json'
+          Accept: 'application/json',
+          'Cache-Control': 'no-cache'
         }
       });
 

@@ -181,7 +181,6 @@ export const GolfDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       // Secondary client-side / API data for non-tournament models
       try {
         const [
-          playersRes,
           sponsorsRes,
           packagesRes,
           followersRes,
@@ -190,7 +189,6 @@ export const GolfDataProvider: React.FC<{ children: ReactNode }> = ({ children }
           investorInqRes,
           sponsorInqRes
         ] = await Promise.all([
-          fetch('/api/players').catch(() => null),
           fetch('/api/sponsors').catch(() => null),
           fetch('/api/sponsorship-packages').catch(() => null),
           fetch('/api/followers').catch(() => null),
@@ -199,13 +197,6 @@ export const GolfDataProvider: React.FC<{ children: ReactNode }> = ({ children }
           fetch('/api/investor-inquiries').catch(() => null),
           fetch('/api/sponsor-inquiries').catch(() => null)
         ]);
-
-        if (playersRes && playersRes.ok) {
-          const playersData = await playersRes.json();
-          if (Array.isArray(playersData) && playersData.length > 0) {
-            setPlayers(playersData);
-          }
-        }
 
         if (sponsorsRes && sponsorsRes.ok) {
           const spData = await sponsorsRes.json();
