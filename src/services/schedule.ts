@@ -8,7 +8,7 @@
 import { Tournament, TournamentStatus, TournamentType, Round } from '../types';
 
 export const GOOGLE_SHEETS_SCHEDULE_ENDPOINT =
-  'https://script.google.com/macros/s/AKfycbyI2_3enCFIDQRAev_hBfPIPOT-uQA557K2YB7mepE-vhm8XSDni9IeDDgUtST2UvQ/exec';
+  'https://script.google.com/macros/s/AKfycbyLybNGGvS8SMj_xBxE74N08MP-BsY0NXxR6Lxm611-FwTXBtNddMkjStPONF_IEsSu/exec';
 
 export interface GoogleSheetTournamentRow {
   event_id?: string;
