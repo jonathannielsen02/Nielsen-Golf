@@ -81,9 +81,8 @@ export const Hero: React.FC = () => {
   const isPreparing = currentEvent?.status === 'Preparing';
 
   const handleOpenTournament = (tourn: Tournament) => {
-    setSelectedTournamentSlug(tourn.slug);
-    setActiveView('tournament-detail');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const url = getLeaderboardUrl(tourn);
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   // Find round scores for display
@@ -360,7 +359,7 @@ export const Hero: React.FC = () => {
                     onClick={() => currentEvent && handleOpenTournament(currentEvent)}
                     className="w-full sm:w-auto py-2.5 px-4 rounded-lg bg-white hover:bg-emerald-50 text-[#244437] font-bold text-xs uppercase tracking-wider border border-[#244437]/30 shadow-2xs flex items-center justify-center gap-1.5 transition-all"
                   >
-                    <span>Tournament Details</span>
+                    <span>Official Leaderboard</span>
                     <ChevronRight className="w-3.5 h-3.5 text-[#244437]" />
                   </button>
                 </div>

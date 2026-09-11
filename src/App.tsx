@@ -11,7 +11,6 @@ import { HomeView } from './views/HomeView';
 import { ProfileView } from './views/ProfileView';
 import { ScheduleView } from './views/ScheduleView';
 import { ResultsView } from './views/ResultsView';
-import { TournamentDetailView } from './views/TournamentDetailView';
 import { PartnerWithUsView } from './views/PartnerWithUsView';
 import { ContactView } from './views/ContactView';
 import { AdminView } from './views/AdminView';
@@ -45,7 +44,6 @@ const AppContent: React.FC = () => {
         {activeView === 'tim' && <ProfileView playerSlug="tim" />}
         {activeView === 'schedule' && <ScheduleView />}
         {activeView === 'results' && <ResultsView />}
-        {activeView === 'tournament-detail' && <TournamentDetailView />}
         {activeView === 'partner-with-us' && <PartnerWithUsView />}
         {activeView === 'partners' && <PartnerWithUsView defaultSection="partners" />}
         {activeView === 'sponsorship' && <PartnerWithUsView defaultSection="sponsor" />}

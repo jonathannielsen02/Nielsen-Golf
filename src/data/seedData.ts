@@ -7,7 +7,7 @@ export const initialPlayers: Player[] = [
     first_name: 'Jonathan',
     last_name: 'Nielsen',
     display_name: 'Jonathan Nielsen',
-    headshot: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fit=crop&w=800&q=80',
+    headshot: './images/jonathan-profile.jpg',
     hero_image: 'https://images.unsplash.com/photo-1592919505780-303950717480?auto=format&fit=crop&w=1800&q=80',
     action_image: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fit=crop&w=1200&q=80',
     nationality: 'Denmark / USA',
@@ -31,7 +31,7 @@ export const initialPlayers: Player[] = [
     first_name: 'Tim',
     last_name: 'Nielsen',
     display_name: 'Tim Nielsen',
-    headshot: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fit=crop&w=800&q=80',
+    headshot: './images/tim-profile.jpg',
     hero_image: 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?auto=format&fit=crop&w=1800&q=80',
     action_image: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fit=crop&w=1200&q=80',
     nationality: 'Denmark / USA',
@@ -791,48 +791,7 @@ export const initialSponsorshipPackages: SponsorshipPackage[] = [
   }
 ];
 
-export const initialDonations: Donation[] = [
-  {
-    id: 'don-1',
-    donor_name: 'David & Karen Miller',
-    email: 'miller.family@example.com',
-    amount: 500,
-    supports_both: true,
-    payment_provider: 'Stripe',
-    payment_status: 'Completed',
-    donation_date: '2026-08-20',
-    public_recognition: true,
-    anonymous: false,
-    message: 'Best of luck to both Jonathan and Tim on tour! Rooting for you every week.'
-  },
-  {
-    id: 'don-2',
-    donor_name: 'Clemson Golf Alumni Supporter',
-    email: 'supporter@clemson.edu',
-    amount: 250,
-    player_id: 'jonathan-nielsen-1',
-    supports_both: false,
-    payment_provider: 'Stripe',
-    payment_status: 'Completed',
-    donation_date: '2026-08-22',
-    public_recognition: true,
-    anonymous: false,
-    message: 'Go Tigers! Keep grinding Jonathan.'
-  },
-  {
-    id: 'don-3',
-    donor_name: 'Anonymous Supporter',
-    email: 'fan@golfsupport.org',
-    amount: 1000,
-    supports_both: true,
-    payment_provider: 'Stripe',
-    payment_status: 'Completed',
-    donation_date: '2026-08-25',
-    public_recognition: false,
-    anonymous: true,
-    message: 'Safe travels on tour.'
-  }
-];
+export const initialDonations: Donation[] = [];
 
 export const initialInvestmentOpportunities: InvestmentOpportunity[] = [
   {

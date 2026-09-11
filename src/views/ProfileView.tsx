@@ -39,9 +39,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ playerSlug }) => {
   ].filter(([, value]) => Boolean(value));
 
   const handleTournamentClick = (t: Tournament) => {
-    setSelectedTournamentSlug(t.slug);
-    setActiveView('tournament-detail');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const url = getLeaderboardUrl(t);
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return <div className="bg-[#FAF9F6] min-h-screen pb-16 text-[#202421]">

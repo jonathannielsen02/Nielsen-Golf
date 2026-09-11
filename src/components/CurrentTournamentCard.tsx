@@ -25,9 +25,8 @@ export const CurrentTournamentCard: React.FC = () => {
   } = useGolfData();
 
   const handleTournamentClick = (tourn: Tournament) => {
-    setSelectedTournamentSlug(tourn.slug);
-    setActiveView('tournament-detail');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const url = getLeaderboardUrl(tourn);
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -430,7 +429,7 @@ const PlayerTournamentWidget: React.FC<PlayerTournamentWidgetProps> = ({
               onClick={() => onCardClick(tournament)}
               className="flex-1 px-4 py-3 rounded-lg bg-white hover:bg-[#ECEAE4] text-[#202421] font-bold text-xs uppercase tracking-wider border border-[#D9D6CC] flex items-center justify-center gap-1.5 transition-colors"
             >
-              <span>Tournament Details</span>
+              <span>Official Leaderboard</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </>
@@ -440,7 +439,7 @@ const PlayerTournamentWidget: React.FC<PlayerTournamentWidgetProps> = ({
               onClick={() => onCardClick(tournament)}
               className="flex-1 px-4 py-3 rounded-lg bg-[#244437] hover:bg-[#1b342a] text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center justify-center gap-1.5 transition-colors"
             >
-              <span>TOURNAMENT DETAILS</span>
+              <span>OFFICIAL LEADERBOARD</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
             <button

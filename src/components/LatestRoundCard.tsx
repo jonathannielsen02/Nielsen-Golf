@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGolfData } from '../context/GolfDataContext';
 import { Sparkles, ChevronDown, ChevronUp, ArrowRight, ShieldCheck, User } from 'lucide-react';
 import { Round, Tournament, Player } from '../types';
+import { getLeaderboardUrl } from '../services/schedule';
 
 export const LatestRoundCard: React.FC = () => {
   const {
@@ -26,9 +27,8 @@ export const LatestRoundCard: React.FC = () => {
   const { round, tournament } = activeInfo;
 
   const handleViewTournament = () => {
-    setSelectedTournamentSlug(tournament.slug);
-    setActiveView('tournament-detail');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const url = getLeaderboardUrl(tournament);
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const toParDisplay = typeof round.score_to_par === 'number'

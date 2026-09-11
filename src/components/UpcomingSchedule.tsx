@@ -4,7 +4,8 @@ import {
   formatCalendarDateRange,
   formatVenue,
   formatLocation,
-  isValidUrl
+  isValidUrl,
+  getLeaderboardUrl
 } from '../services/schedule';
 import { Calendar, MapPin, ArrowRight, ExternalLink, Clock } from 'lucide-react';
 import { Tournament, PlayerFilter } from '../types';
@@ -23,9 +24,8 @@ export const UpcomingSchedule: React.FC = () => {
     .sort((a, b) => a.start_date.localeCompare(b.start_date));
 
   const handleTournamentClick = (t: Tournament) => {
-    setSelectedTournamentSlug(t.slug);
-    setActiveView('tournament-detail');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const url = getLeaderboardUrl(t);
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const getStatusBadge = (type: string) => {
@@ -175,7 +175,7 @@ export const UpcomingSchedule: React.FC = () => {
                       </span>
                     )}
                     <span className="font-bold text-[#244437] group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                      Event Details <ArrowRight className="w-3.5 h-3.5" />
+                      Official Leaderboard <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   </div>
                 </div>

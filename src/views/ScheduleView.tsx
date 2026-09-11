@@ -64,9 +64,8 @@ export const ScheduleView: React.FC = () => {
     .sort((a, b) => b.end_date.localeCompare(a.end_date));
 
   const handleTournamentClick = (t: Tournament) => {
-    setSelectedTournamentSlug(t.slug);
-    setActiveView('tournament-detail');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const url = getLeaderboardUrl(t);
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const getStatusBadge = (type: string) => {
@@ -343,7 +342,7 @@ export const ScheduleView: React.FC = () => {
                         onClick={() => handleTournamentClick(t)}
                         className="px-4 py-2.5 rounded-lg bg-white hover:bg-emerald-50 text-[#244437] text-xs font-bold uppercase tracking-wider border border-[#244437]/30 transition-colors"
                       >
-                        Tournament Details
+                        Official Leaderboard
                       </button>
                     </div>
                   </div>
@@ -446,7 +445,7 @@ export const ScheduleView: React.FC = () => {
                         onClick={() => handleTournamentClick(t)}
                         className="px-4 py-2.5 rounded-lg bg-[#244437] hover:bg-[#1b342a] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-all hover:scale-[1.02]"
                       >
-                        <span>Tournament Details</span>
+                        <span>Official Leaderboard</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                       {hasLeaderboard && (
@@ -564,7 +563,7 @@ export const ScheduleView: React.FC = () => {
                         </span>
                       )}
                       <span className="font-bold text-[#244437] group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                        Event Details <ArrowRight className="w-3.5 h-3.5" />
+                        Official Leaderboard <ArrowRight className="w-3.5 h-3.5" />
                       </span>
                     </div>
                   </div>

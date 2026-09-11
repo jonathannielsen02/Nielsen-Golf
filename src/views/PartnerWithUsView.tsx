@@ -553,7 +553,7 @@ export const PartnerWithUsView: React.FC<PartnerWithUsViewProps> = ({ defaultSec
             {/* Supporter Recognition Sidebar */}
             <div className="lg:col-span-5 space-y-6">
               
-              <div className="bg-[#ECEAE4] border border-[#D9D6CC] rounded-xl p-6">
+              {donations && donations.length > 0 && <div className="bg-[#ECEAE4] border border-[#D9D6CC] rounded-xl p-6">
                 <h3 className="font-display font-black text-lg text-[#202421] mb-2 flex items-center gap-2">
                   <Users className="w-5 h-5 text-[#244437]" />
                   Recent Fan Supporters
@@ -584,7 +584,7 @@ export const PartnerWithUsView: React.FC<PartnerWithUsViewProps> = ({ defaultSec
                     </div>
                   )}
                 </div>
-              </div>
+              </div>}
 
               <div className="bg-[#FAF9F6] border border-[#E2DFD7] rounded-xl p-6 text-xs text-[#656A65] space-y-3">
                 <h4 className="font-bold text-[#202421] uppercase tracking-wider text-xs">How Your Contribution Is Used:</h4>
