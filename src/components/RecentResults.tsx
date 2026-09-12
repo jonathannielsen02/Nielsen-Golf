@@ -34,7 +34,7 @@ export const RecentResults: React.FC = () => {
         {recent.length === 0 ? (
           <div className="bg-[#FAF9F6] border border-[#D9D6CC] rounded-2xl px-6 py-10 sm:py-12 text-center shadow-sm">
             <p className="text-lg font-display font-bold text-[#202421]">2026 results coming soon</p>
-            <p className="text-sm text-[#656A65] mt-2 max-w-xl mx-auto">Verified tournament scores and finishes will appear here automatically once entered in Google Sheets.</p>
+            <p className="text-sm text-[#656A65] mt-2 max-w-xl mx-auto">Verified tournament scores and finishes will appear here as the season progresses.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

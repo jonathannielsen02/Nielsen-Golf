@@ -48,7 +48,7 @@ export const PlayerCardsSection: React.FC = () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               viewButtonLabel="View Jonathan's Profile"
-              accentColor="green"
+              accentColor="navy"
             />
           )}
 
@@ -64,7 +64,7 @@ export const PlayerCardsSection: React.FC = () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               viewButtonLabel="View Tim's Profile"
-              accentColor="navy"
+              accentColor="green"
             />
           )}
 

@@ -78,12 +78,12 @@ export const UpcomingSchedule: React.FC = () => {
                   onClick={() => setPlayerFilter(filterKey)}
                   className={`px-3.5 py-1.5 rounded-lg text-xs font-extrabold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
                     isActive
-                      ? (filterKey === 'jonathan' ? 'bg-[#244437] text-white shadow-xs' : filterKey === 'tim' ? 'bg-[#1E3A8A] text-white shadow-xs' : 'bg-[#202421] text-white shadow-xs')
-                      : (filterKey === 'jonathan' ? 'text-[#244437] hover:bg-emerald-50' : filterKey === 'tim' ? 'text-[#1E3A8A] hover:bg-blue-50' : 'text-[#656A65] hover:text-[#202421] hover:bg-[#ECEAE4]')
+                      ? (filterKey === 'jonathan' ? 'bg-[#1E3A8A] text-white shadow-xs' : filterKey === 'tim' ? 'bg-[#244437] text-white shadow-xs' : 'bg-[#202421] text-white shadow-xs')
+                      : (filterKey === 'jonathan' ? 'text-[#1E3A8A] hover:bg-blue-50' : filterKey === 'tim' ? 'text-[#244437] hover:bg-emerald-50' : 'text-[#656A65] hover:text-[#202421] hover:bg-[#ECEAE4]')
                   }`}
                 >
-                  {filterKey === 'jonathan' && <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-emerald-500'}`} />}
-                  {filterKey === 'tim' && <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-blue-500'}`} />}
+                  {filterKey === 'jonathan' && <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-blue-500'}`} />}
+                  {filterKey === 'tim' && <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-emerald-500'}`} />}
                   <span>{label}</span>
                 </button>
               );

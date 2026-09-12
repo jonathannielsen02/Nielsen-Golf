@@ -87,8 +87,8 @@ export const ScheduleView: React.FC = () => {
       name: isJonathan ? 'Jonathan Nielsen' : 'Tim Nielsen',
       tour: isJonathan ? 'PGA TOUR Americas' : 'Asian Development Tour',
       classes: isJonathan
-        ? 'bg-emerald-100 text-emerald-950 border border-emerald-300 font-extrabold'
-        : 'bg-blue-100 text-blue-950 border border-blue-300 font-extrabold'
+        ? 'bg-blue-100 text-blue-950 border border-blue-300 font-extrabold'
+        : 'bg-emerald-100 text-emerald-950 border border-emerald-300 font-extrabold'
     };
   };
 
@@ -129,21 +129,21 @@ export const ScheduleView: React.FC = () => {
                       className={`px-4 py-2 rounded-lg text-xs font-extrabold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
                         isActive
                           ? isJonathan
-                            ? 'bg-[#244437] text-white shadow-sm'
-                            : isTim
                             ? 'bg-[#1E3A8A] text-white shadow-sm'
+                            : isTim
+                            ? 'bg-[#244437] text-white shadow-sm'
                             : 'bg-[#202421] text-white shadow-sm'
                           : isJonathan
-                          ? 'text-[#244437] hover:bg-emerald-50'
-                          : isTim
                           ? 'text-[#1E3A8A] hover:bg-blue-50'
+                          : isTim
+                          ? 'text-[#244437] hover:bg-emerald-50'
                           : 'text-[#656A65] hover:text-[#202421]'
                       }`}
                     >
                       {(isJonathan || isTim) && (
                         <span
                           className={`w-1.5 h-1.5 rounded-full ${
-                            isActive ? 'bg-white' : isJonathan ? 'bg-emerald-500' : 'bg-blue-500'
+                            isActive ? 'bg-white' : isJonathan ? 'bg-blue-500' : 'bg-emerald-500'
                           }`}
                         />
                       )}

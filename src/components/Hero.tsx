@@ -192,14 +192,14 @@ export const Hero: React.FC = () => {
 
             {/* Quick Status Sub-bar */}
             <div className="pt-2 flex flex-wrap items-center gap-3 text-xs border-t border-[#DCD7CA]">
-              <div className="flex items-center gap-2 bg-white/90 px-3 py-1.5 rounded-lg border border-emerald-200/80 shadow-2xs backdrop-blur-xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
-                <span className="font-bold text-[#244437]">Jonathan:</span>
-                <span className="text-[#4A534E] font-medium">PGA TOUR Americas &amp; APGA Tour</span>
-              </div>
               <div className="flex items-center gap-2 bg-white/90 px-3 py-1.5 rounded-lg border border-blue-200/80 shadow-2xs backdrop-blur-xs">
                 <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                <span className="font-bold text-[#1E3A8A]">Tim:</span>
+                <span className="font-bold text-[#1E3A8A]">Jonathan:</span>
+                <span className="text-[#4A534E] font-medium">PGA TOUR Americas &amp; APGA Tour</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/90 px-3 py-1.5 rounded-lg border border-emerald-200/80 shadow-2xs backdrop-blur-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                <span className="font-bold text-[#244437]">Tim:</span>
                 <span className="text-[#4A534E] font-medium">Asian Development Tour (ADT)</span>
               </div>
             </div>
@@ -235,32 +235,7 @@ export const Hero: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Tournament quick-switch tabs if multiple exist */}
-                  {tournaments.filter(t => t.status === 'Current' || t.status === 'Preparing' || t.status === 'Upcoming').length > 1 && (
-                    <div className="flex items-center gap-1.5 bg-white p-1 rounded-lg border border-[#D9D6CC] shadow-2xs">
-                      {tournaments
-                        .filter(t => t.status === 'Current' || t.status === 'Preparing' || t.status === 'Upcoming')
-                        .slice(0, 2)
-                        .map((t) => {
-                          const isJonathan = t.player_id.includes('jonathan');
-                          const isSelected = currentEvent?.id === t.id;
-                          return (
-                            <button
-                              key={t.id}
-                              onClick={() => setSelectedEventId(t.id)}
-                              className={`px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider transition-all flex items-center gap-1 ${
-                                isSelected
-                                  ? (isJonathan ? 'bg-[#244437] text-white shadow-xs' : 'bg-[#1E3A8A] text-white shadow-xs')
-                                  : (isJonathan ? 'text-[#244437] hover:bg-emerald-50' : 'text-[#1E3A8A] hover:bg-blue-50')
-                              }`}
-                            >
-                              <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : (isJonathan ? 'bg-[#244437]' : 'bg-[#1E3A8A]')}`}></span>
-                              <span>{isJonathan ? 'Jonathan' : 'Tim'}</span>
-                            </button>
-                          );
-                        })}
-                    </div>
-                  )}
+
                 </div>
 
                 {/* Event Name & Course */}
@@ -392,8 +367,8 @@ const LeaderboardPlayerRow: React.FC<LeaderboardPlayerRowProps> = ({
 }) => {
   const isLive = tournament?.status === 'Current';
   const isPreparing = tournament?.status === 'Preparing';
-  const scoreToPar = tournament?.final_score_to_par || 'E';
-  const position = tournament?.final_finish || (isLive ? (player.id.includes('jonathan') ? 'T8' : 'T14') : isPreparing ? 'Prep' : 'Scheduled');
+  const scoreToPar = tournament?.final_score_to_par || tournament?.score_to_par || '—';
+  const position = tournament?.final_finish || tournament?.finish || (isPreparing ? 'Prep' : isLive ? 'In Play' : 'Scheduled');
   const isJonathan = player.id.includes('jonathan');
 
   const isUnderPar = scoreToPar.startsWith('-');
@@ -416,7 +391,7 @@ const LeaderboardPlayerRow: React.FC<LeaderboardPlayerRowProps> = ({
             src={player.headshot}
             alt={player.display_name}
             className={`w-10 h-10 rounded-full object-cover border-2 shadow-xs ${
-              isJonathan ? 'border-emerald-600' : 'border-blue-600'
+              isJonathan ? 'border-blue-600' : 'border-emerald-600'
             }`}
           />
           <div>
@@ -425,7 +400,7 @@ const LeaderboardPlayerRow: React.FC<LeaderboardPlayerRowProps> = ({
                 {player.display_name}
               </span>
               <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${
-                isJonathan ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-blue-100 text-blue-900 border border-blue-300'
+                isJonathan ? 'bg-blue-100 text-blue-900 border border-blue-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
               }`}>
                 {isJonathan ? 'Americas' : 'ADT'}
               </span>
