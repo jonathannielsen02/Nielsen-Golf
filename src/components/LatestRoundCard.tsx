@@ -70,7 +70,7 @@ export const LatestRoundCard: React.FC = () => {
               onClick={() => setSelectedPlayerSlug('jonathan')}
               className={`px-4 py-2 rounded-md text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
                 selectedPlayerSlug === 'jonathan'
-                  ? 'bg-emerald-600 text-white shadow-sm'
+                  ? 'bg-[#1E3A8A] text-white shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -86,7 +86,7 @@ export const LatestRoundCard: React.FC = () => {
               onClick={() => setSelectedPlayerSlug('tim')}
               className={`px-4 py-2 rounded-md text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
                 selectedPlayerSlug === 'tim'
-                  ? 'bg-emerald-600 text-white shadow-sm'
+                  ? 'bg-[#244437] text-white shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -128,7 +128,7 @@ export const LatestRoundCard: React.FC = () => {
                 <span className="font-display text-4xl sm:text-5xl font-black text-slate-950">
                   {round.score}
                 </span>
-                <span className="font-display text-2xl sm:text-3xl font-black text-emerald-600">
+                <span className={`font-display text-2xl sm:text-3xl font-black ${selectedPlayerSlug === 'jonathan' ? 'text-[#1E3A8A]' : 'text-[#244437]'}`}>
                   {toParDisplay}
                 </span>
               </div>

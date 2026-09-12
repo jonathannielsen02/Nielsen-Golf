@@ -167,7 +167,7 @@ export const Hero: React.FC = () => {
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
                 onClick={() => setActiveView('jonathan')}
-                className="px-5 py-3 rounded-lg bg-[#244437] hover:bg-[#1b342a] text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center gap-2 transition-all hover:scale-[1.02]"
+                className="px-5 py-3 rounded-lg bg-[#1E3A8A] hover:bg-[#172554] text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center gap-2 transition-all hover:scale-[1.02]"
               >
                 <span>Jonathan Nielsen</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -175,7 +175,7 @@ export const Hero: React.FC = () => {
 
               <button
                 onClick={() => setActiveView('tim')}
-                className="px-5 py-3 rounded-lg bg-[#1E3A8A] hover:bg-[#172554] text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center gap-2 transition-all hover:scale-[1.02]"
+                className="px-5 py-3 rounded-lg bg-[#244437] hover:bg-[#1b342a] text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center gap-2 transition-all hover:scale-[1.02]"
               >
                 <span>Tim Nielsen</span>
                 <ArrowRight className="w-3.5 h-3.5" />

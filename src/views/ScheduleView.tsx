@@ -82,7 +82,7 @@ export const ScheduleView: React.FC = () => {
   };
 
   const getGolferBadge = (playerId: string) => {
-    const isJonathan = playerId.includes('jonathan');
+    const isJonathan = String(playerId || '').toLowerCase().includes('jonathan');
     return {
       name: isJonathan ? 'Jonathan Nielsen' : 'Tim Nielsen',
       tour: isJonathan ? 'PGA TOUR Americas' : 'Asian Development Tour',

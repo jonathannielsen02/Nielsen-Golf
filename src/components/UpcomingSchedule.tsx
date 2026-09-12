@@ -42,12 +42,12 @@ export const UpcomingSchedule: React.FC = () => {
   };
 
   const getGolferBadge = (playerId: string) => {
-    const isJonathan = playerId.includes('jonathan');
+    const isJonathan = String(playerId || '').toLowerCase().includes('jonathan');
     return {
       name: isJonathan ? 'Jonathan Nielsen' : 'Tim Nielsen',
       classes: isJonathan
-        ? 'bg-emerald-100 text-emerald-950 border-emerald-300 font-extrabold'
-        : 'bg-blue-100 text-blue-950 border-blue-300 font-extrabold'
+        ? 'bg-blue-100 text-blue-950 border-blue-300 font-extrabold'
+        : 'bg-emerald-100 text-emerald-950 border-emerald-300 font-extrabold'
     };
   };
 
