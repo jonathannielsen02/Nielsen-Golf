@@ -32,7 +32,7 @@ const experiences: { key: ExperienceKey; label: string; credits: number; value: 
   { key: 'lesson', label: '60-minute individual golf lesson', credits: 2, value: 150 },
   { key: 'post', label: 'Dedicated social media post', credits: 2, value: 125 },
   { key: 'speaking', label: '60-minute speaking engagement', credits: 3, value: 250 },
-  { key: 'video', label: 'Personalized company video (optional)', credits: 1, value: 75 },
+  { key: 'video', label: 'Personalized company video', credits: 1, value: 75 },
   { key: 'interview', label: '30-minute interview / Q&A', credits: 1, value: 100 },
   { key: 'reel', label: 'Professionally produced promotional reel', credits: 4, value: 400 },
 ];
@@ -801,22 +801,50 @@ export const PartnerWithUsView: React.FC<PartnerWithUsViewProps> = ({ defaultSec
             {partnerTiers.map(tier => (
               <article key={tier.name} className={`flex flex-col rounded-2xl border bg-[#FAF9F6] p-6 shadow-sm ${tier.name === 'Signature' ? 'border-[#244437] ring-1 ring-[#244437]' : 'border-[#DEDCD4]'}`}>
                 <div className="flex items-center justify-between gap-2 mb-4"><span className="text-xs font-black tracking-widest uppercase text-[#244437]">{tier.name} Partner</span><span className="text-[10px] uppercase font-bold text-[#656A65]">{tier.slots}</span></div>
+                {tier.name === 'Signature' && (
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-semibold text-[#7B817A] line-through" aria-label="Previous monthly price: $1,000">$1,000</span>
+                    <span className="rounded-full bg-[#DCECE0] px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-[#205B37]">25% OFF</span>
+                  </div>
+                )}
                 <div className="flex items-baseline gap-1 mb-1"><span className="font-display font-black text-4xl text-[#202421]">${tier.monthly}</span><span className="text-xs text-[#656A65]">/month</span></div>
                 <p className="text-xs text-[#656A65] mb-4">${(tier.monthly * 12).toLocaleString()} annually · 12-month commitment</p>
                 <div className="rounded-lg bg-[#E9EEE9] px-3 py-3 mb-4"><p className="font-bold text-[#244437] text-sm">{tier.credits} experience credits / year</p><p className="text-xs text-[#526258] mt-1">{tier.placement}</p></div>
-                <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#656A65] mb-3">Your preset experiences</p>
+                <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#656A65] mb-3">Your standard package</p>
                 <ul className="space-y-3 mb-5 flex-1">{tier.items.map(item => <li key={item.key} className="flex gap-2 items-start text-sm text-[#303B33]"><CheckCircle2 className="w-4 h-4 text-[#244437] shrink-0 mt-0.5"/><span>{item.count} × {experiences.find(e => e.key === item.key)?.label}</span></li>)}</ul>
-                <div className="border-t border-[#E2DFD7] pt-4 mb-4"><p className="text-xs text-[#656A65]">Estimated standalone experience value</p><p className="font-bold text-lg text-[#244437]">${tier.items.reduce((sum, item) => sum + item.count * (experiences.find(e => e.key === item.key)?.value || 0), 0).toLocaleString()}</p></div>
+                <div className="border-t border-[#E2DFD7] pt-4 mb-4 space-y-2 text-xs text-[#46584C]">
+                  <p className="flex items-center gap-2"><Lock className="w-3.5 h-3.5 shrink-0" /> Price locked for your 12-month term</p>
+                  <p className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> Flexible experiences within your credit allowance</p>
+                </div>
                 <button type="button" onClick={() => { setSelectedPackageName(`${tier.name} Partner — $${tier.monthly}/month (${tier.credits} credits)`); setSponsorBudget(`$${tier.monthly * 12}/year — ${tier.name} Partner`); setShowSponsorModal(true); setSponsorSuccess(false); }} className="w-full rounded-lg bg-[#244437] hover:bg-[#1A3328] text-white px-4 py-3 text-xs font-bold uppercase tracking-wide flex items-center justify-center gap-2">Discuss this partnership <ArrowRight className="w-4 h-4"/></button>
               </article>
             ))}
           </div>
-          <div className="rounded-2xl border border-[#DEDCD4] bg-white p-6 sm:p-8 mb-7">
-            <div className="max-w-3xl mb-6"><h3 className="font-display font-black text-2xl sm:text-3xl text-[#202421] mb-2">Make it your own</h3><p className="text-sm text-[#656A65] leading-relaxed">Each package includes a recommended set of experiences. Prefer more client golf and fewer social posts? You can exchange experiences within your annual credit allowance, subject to availability and mutually agreed scheduling. Personalized company videos are optional, never part of the preset packages.</p></div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">{experiences.map(exp => <div key={exp.key} className="rounded-lg border border-[#E2DFD7] p-4 flex justify-between gap-3"><div><p className="font-bold text-sm text-[#202421]">{exp.label}</p><p className="text-xs text-[#656A65] mt-1">Estimated standalone value ${exp.value}</p></div><span className="shrink-0 text-xs font-extrabold text-[#244437]">{exp.credits} {exp.credits === 1 ? 'credit' : 'credits'}</span></div>)}</div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-7">
+            <div className="rounded-2xl border border-[#DEDCD4] bg-white p-6 sm:p-8">
+              <span className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[#244437]">Why we built it this way</span>
+              <h3 className="font-display font-black text-2xl text-[#202421] mt-2 mb-3">A partnership that works for your business.</h3>
+              <p className="text-sm text-[#656A65] leading-relaxed mb-4">Traditional athlete sponsorships often stop at a logo. We developed Partner Experience Credits so companies can turn their support into meaningful client relationships, employee engagement, and brand storytelling — with the freedom to choose what matters most to them.</p>
+              <h4 className="font-bold text-[#244437] text-sm mb-2">How the credit system works</h4>
+              <p className="text-sm text-[#656A65] leading-relaxed">Each sponsorship includes an annual credit allowance and a ready-to-use <strong>standard package</strong>. Every experience has a set credit cost. Keep the standard package as it is, or exchange experiences from the menu below without changing your sponsorship level. All experiences are subject to mutually agreed scheduling.</p>
+            </div>
+            <div className="rounded-2xl border border-[#DEDCD4] bg-[#E9EEE9] p-6 sm:p-8">
+              <span className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[#244437]">Included in every partnership</span>
+              <h3 className="font-display font-black text-2xl text-[#202421] mt-2 mb-4">More than a logo.</h3>
+              <ul className="space-y-3 text-sm text-[#34483B]">
+                <li className="flex gap-2"><CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" /> Website and general social media recognition, plus professional career updates</li>
+                <li className="flex gap-2"><Lock className="w-4 h-4 shrink-0 mt-0.5" /> <span><strong>Locked-in pricing:</strong> your agreed monthly rate stays fixed throughout the 12-month term, even if competitive success increases future sponsorship demand.</span></li>
+                <li className="flex gap-2"><CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" /> <span><strong>Priority renewal opportunity:</strong> an existing partner can retain its placement at a 25% discount to a comparable bona fide outside offer, subject to written renewal terms and existing commitments.</span></li>
+                <li className="flex gap-2"><CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" /> Flexible annual experience credits to support your business goals</li>
+              </ul>
+            </div>
           </div>
-          <div className="rounded-2xl bg-[#244437] text-white p-7 sm:p-9 flex flex-col md:flex-row items-start md:items-center justify-between gap-5"><div className="max-w-2xl"><h3 className="font-display font-black text-2xl mb-2">Built for relationships, not just impressions.</h3><p className="text-sm text-[#E0E9E2] leading-relaxed">Every tier includes Nielsen Golf website recognition, general social media recognition and career updates. Dedicated posts and stories use experience credits. For Charlotte-area companies, golf bag branding offers repeated local exposure during practice and play, in addition to tournament travel.</p></div><button type="button" onClick={() => { setSelectedPackageName('Custom Corporate Partnership'); setShowSponsorModal(true); setSponsorSuccess(false); }} className="shrink-0 bg-white text-[#244437] hover:bg-[#E9EEE9] rounded-lg px-6 py-3 font-bold text-sm">Explore a custom partnership</button></div>
-          <p className="mt-5 text-xs text-[#656A65] leading-relaxed">All prices are proposed USD sponsorship rates billed monthly with a 12-month commitment. Branding availability, logo placement and category exclusivity are subject to agreement and existing sponsor commitments; hat placement is not available. Experience values are illustrative standalone estimates, not guaranteed returns. Experiences require mutually agreed scheduling; course fees, travel and other third-party expenses are paid by the partner unless agreed otherwise. Credit allocations reset at annual renewal; unused credits do not carry over.</p>
+          <div className="rounded-2xl border border-[#DEDCD4] bg-white p-6 sm:p-8 mb-7">
+            <div className="max-w-3xl mb-6"><h3 className="font-display font-black text-2xl sm:text-3xl text-[#202421] mb-2">Customize your experiences</h3><p className="text-sm text-[#656A65] leading-relaxed">Every experience below is available to choose with your annual credits. Your standard package is simply a starting point — exchange any of its experiences to better fit your clients, team, or marketing plans.</p></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">{experiences.map(exp => <div key={exp.key} className="rounded-lg border border-[#E2DFD7] p-4 flex justify-between gap-3"><p className="font-bold text-sm text-[#202421]">{exp.label}</p><span className="shrink-0 text-xs font-extrabold text-[#244437]">{exp.credits} {exp.credits === 1 ? 'credit' : 'credits'}</span></div>)}</div>
+          </div>
+          <div className="rounded-2xl bg-[#244437] text-white p-7 sm:p-9 flex flex-col md:flex-row items-start md:items-center justify-between gap-5"><div className="max-w-2xl"><h3 className="font-display font-black text-2xl mb-2">Built for relationships, not just impressions.</h3><p className="text-sm text-[#E0E9E2] leading-relaxed">Every partnership includes Nielsen Golf website recognition, general social media recognition and career updates. Dedicated posts and stories use experience credits. For Charlotte-area companies, golf bag branding offers repeated local exposure during practice and play, in addition to tournament travel.</p></div><button type="button" onClick={() => { setSelectedPackageName('Custom Corporate Partnership'); setShowSponsorModal(true); setSponsorSuccess(false); }} className="shrink-0 bg-white text-[#244437] hover:bg-[#E9EEE9] rounded-lg px-6 py-3 font-bold text-sm">Explore a custom partnership</button></div>
+          <p className="mt-5 text-xs text-[#656A65] leading-relaxed">All prices are proposed USD sponsorship rates billed monthly with a 12-month commitment. Branding availability, logo placement and category exclusivity are subject to agreement and existing sponsor commitments; hat placement is not available. Experiences require mutually agreed scheduling; course fees, travel and other third-party expenses are paid by the partner unless agreed otherwise. Credit allocations reset at annual renewal; unused credits do not carry over. Locked pricing applies only during the signed term. Renewal and any outside-offer discount require written agreement defining comparable offers, deadlines and availability; no renewal or placement is automatic.</p>
         </div>
       </section>
 
@@ -890,10 +918,7 @@ export const PartnerWithUsView: React.FC<PartnerWithUsViewProps> = ({ defaultSec
                     />
                   </div>
 
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-[#244437]">
-                      {sponsor.tier}
-                    </span>
+                  <div className="mb-2">
                     <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-[#ECEAE4] text-[#656A65]">
                       {sponsor.category}
                     </span>
