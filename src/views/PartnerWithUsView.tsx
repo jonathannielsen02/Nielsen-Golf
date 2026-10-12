@@ -24,6 +24,25 @@ import {
   Lock
 } from 'lucide-react';
 
+type ExperienceKey = 'round' | 'story' | 'clinic' | 'lesson' | 'post' | 'speaking' | 'video' | 'interview' | 'reel';
+const experiences: { key: ExperienceKey; label: string; credits: number; value: number }[] = [
+  { key: 'round', label: 'Round of golf with clients', credits: 2, value: 350 },
+  { key: 'story', label: 'Dedicated social media story', credits: 1, value: 50 },
+  { key: 'clinic', label: '90-minute client / employee golf clinic', credits: 3, value: 300 },
+  { key: 'lesson', label: '60-minute individual golf lesson', credits: 2, value: 150 },
+  { key: 'post', label: 'Dedicated social media post', credits: 2, value: 125 },
+  { key: 'speaking', label: '60-minute speaking engagement', credits: 3, value: 250 },
+  { key: 'video', label: 'Personalized company video (optional)', credits: 1, value: 75 },
+  { key: 'interview', label: '30-minute interview / Q&A', credits: 1, value: 100 },
+  { key: 'reel', label: 'Professionally produced promotional reel', credits: 4, value: 400 },
+];
+const partnerTiers: { name: string; monthly: number; credits: number; slots: string; placement: string; items: { key: ExperienceKey; count: number }[] }[] = [
+  { name: 'Supporting', monthly: 100, credits: 4, slots: 'Open availability', placement: 'No apparel logo', items: [{ key: 'round', count: 1 }, { key: 'story', count: 2 }] },
+  { name: 'Official', monthly: 250, credits: 8, slots: '4 positions', placement: 'Sleeve or collar logo', items: [{ key: 'round', count: 1 }, { key: 'clinic', count: 1 }, { key: 'lesson', count: 1 }, { key: 'story', count: 1 }] },
+  { name: 'Premier', monthly: 500, credits: 15, slots: '1 position', placement: 'Chest logo', items: [{ key: 'round', count: 2 }, { key: 'clinic', count: 2 }, { key: 'lesson', count: 1 }, { key: 'post', count: 1 }, { key: 'story', count: 1 }] },
+  { name: 'Signature', monthly: 750, credits: 22, slots: '1 position', placement: 'Golf bag logo', items: [{ key: 'round', count: 3 }, { key: 'clinic', count: 2 }, { key: 'lesson', count: 2 }, { key: 'speaking', count: 1 }, { key: 'post', count: 1 }, { key: 'story', count: 1 }] },
+];
+
 interface PartnerWithUsViewProps {
   defaultSection?: 'donate' | 'invest' | 'sponsor' | 'partners';
 }
@@ -76,8 +95,8 @@ export const PartnerWithUsView: React.FC<PartnerWithUsViewProps> = ({ defaultSec
   const [sponsorEmail, setSponsorEmail] = useState<string>('');
   const [sponsorPhone, setSponsorPhone] = useState<string>('');
   const [sponsorAthletePref, setSponsorAthletePref] = useState<'both' | 'jonathan' | 'tim'>('both');
-  const [sponsorBudget, setSponsorBudget] = useState<string>('$15,000 - $35,000');
-  const [sponsorAreas, setSponsorAreas] = useState<string[]>(['Hat / Apparel Branding']);
+  const [sponsorBudget, setSponsorBudget] = useState<string>('$3,000/year — Official Partner');
+  const [sponsorAreas, setSponsorAreas] = useState<string[]>(['Client Golf Experiences']);
   const [sponsorMessage, setSponsorMessage] = useState<string>('');
   const [sponsorSuccess, setSponsorSuccess] = useState<boolean>(false);
   const [isSubmittingSponsor, setIsSubmittingSponsor] = useState<boolean>(false);
@@ -770,127 +789,34 @@ export const PartnerWithUsView: React.FC<PartnerWithUsViewProps> = ({ defaultSec
       </section>
 
       {/* ================= 03. SPONSOR SECTION ================= */}
-      <section id="sponsor-section" className="py-20 border-b border-[#E2DFD7]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="max-w-3xl mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-[#B49A6A]/20 text-[#244437] text-xs font-bold tracking-wider uppercase mb-3">
-              <Briefcase className="w-3.5 h-3.5 text-[#244437]" />
-              Pillar 03
-            </div>
-            <h2 className="font-display font-black text-3xl sm:text-4xl text-[#202421] tracking-tight mb-4">
-              SPONSOR — CORPORATE BRANDING &amp; PARTNERSHIPS
-            </h2>
-            <p className="text-base sm:text-lg text-[#656A65] leading-relaxed">
-              Partner with Nielsen Golf around a shared commitment to excellence, integrity, discipline, relationships, and purpose. Our sponsorship packages combine brand visibility with meaningful corporate golf experiences for executives and clients, while remaining welcoming to partners from a wide range of backgrounds and beliefs.
-            </p>
+      <section id="sponsor-section" className="py-20 border-b border-[#E2DFD7] bg-[#F5F3EE]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mb-10">
+            <span className="text-xs font-extrabold tracking-[0.2em] text-[#244437] uppercase">Partner With Us · Corporate Partnerships</span>
+            <h2 className="font-display font-black text-3xl sm:text-5xl tracking-tight text-[#202421] mt-3 mb-5">Your Partnership. Your Priorities.</h2>
+            <p className="text-lg text-[#525B54] leading-relaxed mb-3">Turning a traditional athlete sponsorship into a customizable business partnership.</p>
+            <p className="text-sm text-[#656A65] leading-relaxed">Partner with professional golfer Jonathan Nielsen through meaningful client experiences, employee engagement and brand visibility. Start with a ready-made package, or tailor your annual experiences to your business goals.</p>
           </div>
-
-          {/* Sponsorship Packages Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {sponsorshipPackages.map((pkg) => (
-              <div
-                key={pkg.id}
-                className={`rounded-xl p-6 sm:p-7 flex flex-col justify-between border transition-all shadow-sm ${
-                  pkg.tier.includes('Title') || pkg.tier.includes('Primary')
-                    ? 'bg-[#FAF9F6] border-2 border-[#244437] ring-1 ring-[#244437]/20'
-                    : 'bg-[#FAF9F6] border-[#E2DFD7] hover:border-[#244437]'
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[11px] font-extrabold tracking-widest text-[#B49A6A] uppercase">
-                      {pkg.tier}
-                    </span>
-                    <span className="text-[10px] font-semibold text-[#656A65] uppercase px-2 py-0.5 rounded bg-[#ECEAE4]">
-                      {pkg.billing_frequency}
-                    </span>
-                  </div>
-
-                  <h3 className="font-display font-black text-2xl text-[#202421] mb-2">{pkg.name}</h3>
-                  <div className="text-lg font-bold text-[#244437] mb-4">{pkg.price}</div>
-                  <p className="text-xs text-[#656A65] leading-relaxed mb-6">{pkg.description}</p>
-
-                  {/* Key Package Deliverables */}
-                  <div className="space-y-2.5 text-xs text-[#202421] mb-6 pt-4 border-t border-[#E2DFD7]">
-                    {pkg.logo_placements && pkg.logo_placements.length > 0 && (
-                      <div>
-                        <span className="font-bold text-[11px] uppercase tracking-wider text-[#656A65] block mb-1">Logo Placement:</span>
-                        <div className="flex flex-wrap gap-1">
-                          {pkg.logo_placements.map((loc, i) => (
-                            <span key={i} className="px-2 py-0.5 rounded bg-[#ECEAE4] text-[11px] font-medium text-[#202421]">
-                              {loc}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {pkg.corporate_golf_days && (
-                      <div className="flex justify-between py-1 border-b border-[#E2DFD7]">
-                        <span className="text-[#656A65]">Corporate Golf Days:</span>
-                        <span className="font-bold">{pkg.corporate_golf_days}</span>
-                      </div>
-                    )}
-
-                    {pkg.appearance_days && (
-                      <div className="flex justify-between py-1 border-b border-[#E2DFD7]">
-                        <span className="text-[#656A65]">Appearance Days:</span>
-                        <span className="font-bold">{pkg.appearance_days}</span>
-                      </div>
-                    )}
-
-                    {pkg.exclusivity && (
-                      <div className="flex justify-between py-1">
-                        <span className="text-[#656A65]">Industry Exclusivity:</span>
-                        <span className="font-bold">{pkg.exclusivity}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <button
-                    onClick={() => {
-                      setSelectedPackageName(pkg.name);
-                      setShowSponsorModal(true);
-                      setSponsorSuccess(false);
-                    }}
-                    className={`w-full py-3 rounded-lg font-bold text-xs tracking-wider uppercase transition-colors flex items-center justify-center gap-2 ${
-                      pkg.tier.includes('Title') || pkg.tier.includes('Primary')
-                        ? 'bg-[#244437] hover:bg-[#1b342a] text-white'
-                        : 'bg-[#ECEAE4] hover:bg-[#dedad0] text-[#202421]'
-                    }`}
-                  >
-                    Inquire For Package <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-10">
+            {partnerTiers.map(tier => (
+              <article key={tier.name} className={`flex flex-col rounded-2xl border bg-[#FAF9F6] p-6 shadow-sm ${tier.name === 'Signature' ? 'border-[#244437] ring-1 ring-[#244437]' : 'border-[#DEDCD4]'}`}>
+                <div className="flex items-center justify-between gap-2 mb-4"><span className="text-xs font-black tracking-widest uppercase text-[#244437]">{tier.name} Partner</span><span className="text-[10px] uppercase font-bold text-[#656A65]">{tier.slots}</span></div>
+                <div className="flex items-baseline gap-1 mb-1"><span className="font-display font-black text-4xl text-[#202421]">${tier.monthly}</span><span className="text-xs text-[#656A65]">/month</span></div>
+                <p className="text-xs text-[#656A65] mb-4">${(tier.monthly * 12).toLocaleString()} annually · 12-month commitment</p>
+                <div className="rounded-lg bg-[#E9EEE9] px-3 py-3 mb-4"><p className="font-bold text-[#244437] text-sm">{tier.credits} experience credits / year</p><p className="text-xs text-[#526258] mt-1">{tier.placement}</p></div>
+                <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#656A65] mb-3">Your preset experiences</p>
+                <ul className="space-y-3 mb-5 flex-1">{tier.items.map(item => <li key={item.key} className="flex gap-2 items-start text-sm text-[#303B33]"><CheckCircle2 className="w-4 h-4 text-[#244437] shrink-0 mt-0.5"/><span>{item.count} × {experiences.find(e => e.key === item.key)?.label}</span></li>)}</ul>
+                <div className="border-t border-[#E2DFD7] pt-4 mb-4"><p className="text-xs text-[#656A65]">Estimated standalone experience value</p><p className="font-bold text-lg text-[#244437]">${tier.items.reduce((sum, item) => sum + item.count * (experiences.find(e => e.key === item.key)?.value || 0), 0).toLocaleString()}</p></div>
+                <button type="button" onClick={() => { setSelectedPackageName(`${tier.name} Partner — $${tier.monthly}/month (${tier.credits} credits)`); setSponsorBudget(`$${tier.monthly * 12}/year — ${tier.name} Partner`); setShowSponsorModal(true); setSponsorSuccess(false); }} className="w-full rounded-lg bg-[#244437] hover:bg-[#1A3328] text-white px-4 py-3 text-xs font-bold uppercase tracking-wide flex items-center justify-center gap-2">Discuss this partnership <ArrowRight className="w-4 h-4"/></button>
+              </article>
             ))}
           </div>
-
-          {/* Custom Brand Partnership CTA */}
-          <div className="bg-[#244437] text-white rounded-xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="max-w-xl">
-              <h3 className="font-display font-black text-2xl sm:text-3xl tracking-tight mb-2">
-                Need a Custom Corporate Partnership?
-              </h3>
-              <p className="text-sm text-slate-200 leading-relaxed">
-                We craft tailored partnerships for equipment manufacturers, apparel brands, corporate clients, hospitality sponsors, and regional Danish and North American enterprises.
-              </p>
-            </div>
-            <button
-              onClick={() => {
-                setSelectedPackageName('Custom Partnership Inquiry');
-                setShowSponsorModal(true);
-                setSponsorSuccess(false);
-              }}
-              className="px-6 py-3.5 rounded-md bg-[#FAF9F6] text-[#244437] hover:bg-white font-bold text-xs tracking-wider uppercase transition-colors shrink-0 shadow-sm"
-            >
-              Contact Partnership Team
-            </button>
+          <div className="rounded-2xl border border-[#DEDCD4] bg-white p-6 sm:p-8 mb-7">
+            <div className="max-w-3xl mb-6"><h3 className="font-display font-black text-2xl sm:text-3xl text-[#202421] mb-2">Make it your own</h3><p className="text-sm text-[#656A65] leading-relaxed">Each package includes a recommended set of experiences. Prefer more client golf and fewer social posts? You can exchange experiences within your annual credit allowance, subject to availability and mutually agreed scheduling. Personalized company videos are optional, never part of the preset packages.</p></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">{experiences.map(exp => <div key={exp.key} className="rounded-lg border border-[#E2DFD7] p-4 flex justify-between gap-3"><div><p className="font-bold text-sm text-[#202421]">{exp.label}</p><p className="text-xs text-[#656A65] mt-1">Estimated standalone value ${exp.value}</p></div><span className="shrink-0 text-xs font-extrabold text-[#244437]">{exp.credits} {exp.credits === 1 ? 'credit' : 'credits'}</span></div>)}</div>
           </div>
-
+          <div className="rounded-2xl bg-[#244437] text-white p-7 sm:p-9 flex flex-col md:flex-row items-start md:items-center justify-between gap-5"><div className="max-w-2xl"><h3 className="font-display font-black text-2xl mb-2">Built for relationships, not just impressions.</h3><p className="text-sm text-[#E0E9E2] leading-relaxed">Every tier includes Nielsen Golf website recognition, general social media recognition and career updates. Dedicated posts and stories use experience credits. For Charlotte-area companies, golf bag branding offers repeated local exposure during practice and play, in addition to tournament travel.</p></div><button type="button" onClick={() => { setSelectedPackageName('Custom Corporate Partnership'); setShowSponsorModal(true); setSponsorSuccess(false); }} className="shrink-0 bg-white text-[#244437] hover:bg-[#E9EEE9] rounded-lg px-6 py-3 font-bold text-sm">Explore a custom partnership</button></div>
+          <p className="mt-5 text-xs text-[#656A65] leading-relaxed">All prices are proposed USD sponsorship rates billed monthly with a 12-month commitment. Branding availability, logo placement and category exclusivity are subject to agreement and existing sponsor commitments; hat placement is not available. Experience values are illustrative standalone estimates, not guaranteed returns. Experiences require mutually agreed scheduling; course fees, travel and other third-party expenses are paid by the partner unless agreed otherwise. Credit allocations reset at annual renewal; unused credits do not carry over.</p>
         </div>
       </section>
 
@@ -1274,10 +1200,11 @@ export const PartnerWithUsView: React.FC<PartnerWithUsViewProps> = ({ defaultSec
                       onChange={(e) => setSponsorBudget(e.target.value)}
                       className="w-full px-3.5 py-2.5 rounded-lg border border-[#D9D6CC] bg-white text-[#202421] text-sm focus:ring-2 focus:ring-[#244437] outline-none"
                     >
-                      <option value="$5,000 - $15,000">$5,000 - $15,000 (Supporting Partner)</option>
-                      <option value="$15,000 - $35,000">$15,000 - $35,000 (Official Apparel / Bag Partner)</option>
-                      <option value="$35,000 - $75,000">$35,000 - $75,000 (Primary Hat / Title Partner)</option>
-                      <option value="$75,000+">$75,000+ (Global Season Lead Sponsor)</option>
+                      <option value="$1,200/year — Supporting Partner">$1,200/year — Supporting Partner</option>
+                      <option value="$3,000/year — Official Partner">$3,000/year — Official Partner</option>
+                      <option value="$6,000/year — Premier Partner">$6,000/year — Premier Partner</option>
+                      <option value="$9,000/year — Signature Partner">$9,000/year — Signature Partner</option>
+                      <option value="Custom / To discuss">Custom / To discuss</option>
                     </select>
                   </div>
                 </div>
@@ -1288,7 +1215,7 @@ export const PartnerWithUsView: React.FC<PartnerWithUsViewProps> = ({ defaultSec
                     Assets of Interest
                   </label>
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    {['Hat Front Branding', 'Apparel Sleeve / Chest', 'Tour Bag Placement', 'Corporate Golf Days', 'Social & Digital Campaigns', 'Product Endorsement'].map((item) => (
+                    {['Client Golf Experiences', 'Employee Clinics / Lessons', 'Sleeve / Collar Branding', 'Chest Branding', 'Golf Bag Branding', 'Social & Digital Content', 'Speaking Engagements'].map((item) => (
                       <label key={item} className="flex items-center gap-2 cursor-pointer text-[#656A65]">
                         <input
                           type="checkbox"
